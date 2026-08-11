@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+:root {
+  --e-global-color-primary: #E94444;
+  --e-global-color-secondary: #4D4D48;
+  --e-global-color-text: #808080;
+  --e-global-color-accent: #F5F3EA;
+  --e-global-color-dark-blue: #172B44;
+  --e-global-color-white: #FFFFFF;
+  --e-global-color-black: #000000;
+  --e-global-color-bg-light: #F5F5F5;
+}
+
+@theme inline {
+  --font-sans: "Sherika", "Satoshi", var(--font-geist-sans), system-ui, sans-serif;
+}
+
+body {
+  background: var(--e-global-color-bg-light);
+  color: var(--e-global-color-secondary);
+  font-family: "Sherika", "Satoshi", system-ui, -apple-system, sans-serif !important;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleUp {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
+.animate-scale-up {
+  animation: scaleUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}

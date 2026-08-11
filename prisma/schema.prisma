@@ -1,0 +1,81 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+model User {
+  id       String @id @default(uuid())
+  username String @unique
+  password String // Hashed
+}
+
+model Client {
+  id            String    @id @default(uuid())
+  name          String    @unique
+  email         String
+  firstName     String?   // e.g. "Mr. Abi"
+  lastName      String?   // e.g. "Ali"
+  contactPerson String?   // e.g. "Mr. Abi Ali"
+  state         String
+  stateCode     String?   // e.g. "24"
+  gstin         String?   // e.g. "24AAJFU0296R1ZG"
+  address       String?   // Billing Address
+  invoices      Invoice[]
+}
+
+model Invoice {
+  id             String     @id @default(uuid())
+  invoiceNumber  String     @unique
+  orderNumber    String?    // e.g. "D2026270615"
+  clientId       String
+  client         Client     @relation(fields: [clientId], references: [id])
+  status         String     // 'DRAFT', 'SENT', 'UNPAID', 'PAID'
+  domesticExport String     @default("Domestic") // 'Domestic' or 'Export'
+  subtotal       Float
+  cgst           Float      @default(0)
+  sgst           Float      @default(0)
+  igst           Float      @default(0)
+  discount       Float      @default(0)
+  totalAmount    Float
+  currency       String     @default("INR")
+  currencySymbol String     @default("₹")
+  taxRule        String     @default("Auto") // 'Auto', 'IGST', 'CGST_SGST', 'None'
+  lutArn         String?    // Snapshot of the LUT ARN Number at creation/edit time
+  createdAt      DateTime   @default(now())
+  dueDate        DateTime?
+  lineItems      LineItem[]
+}
+
+model LineItem {
+  id            String   @id @default(uuid())
+  hsnSac        String?  // e.g. "998314"
+  title         String
+  description   String?
+  unit          String?  @default("1")
+  quantity      Float
+  amount        Float
+  adjustPercent Float    @default(0)
+  taxable       Boolean  @default(true)
+  taxRate       Float    @default(18.0)
+  invoiceId     String
+  invoice       Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+}
+
+model Certificate {
+  id                String   @id @default(uuid())
+  certificateNumber String   @unique
+  studentName       String
+  courseName        String
+  createdAt         DateTime @default(now())
+}
+
+model Setting {
+  key   String @id
+  value String
+}
