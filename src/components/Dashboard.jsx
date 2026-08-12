@@ -254,7 +254,7 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
 
   // Month and Year filter states for individual boxes
   const [salesFilterMonth, setSalesFilterMonth] = useState('ALL');
-  const [salesFilterYear, setSalesFilterYear] = useState('ALL');
+  const [salesFilterYear, setSalesFilterYear] = useState(() => new Date().getFullYear().toString());
 
   const [outFilterMonth, setOutFilterMonth] = useState('ALL');
   const [outFilterYear, setOutFilterYear] = useState('ALL');
@@ -1133,7 +1133,7 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
   const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
   const salesAmount = invoices.reduce((sum, inv) => {
-    if (inv.status === 'PROFORMA' || inv.status === 'DRAFT') return sum;
+    if (inv.status === 'PROFORMA' || inv.status === 'DRAFT' || inv.status === 'CANCELLED' || inv.status === 'CANCEL') return sum;
     const d = new Date(inv.createdAt);
     const m = d.getMonth().toString();
     const y = d.getFullYear().toString();
@@ -1172,7 +1172,7 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
       months[key] = { name: key, revenue: 0 };
     }
     invoices.forEach(inv => {
-      if (inv.status !== 'PROFORMA' && inv.status !== 'DRAFT') {
+      if (inv.status !== 'PROFORMA' && inv.status !== 'DRAFT' && inv.status !== 'CANCELLED' && inv.status !== 'CANCEL') {
         const d = new Date(inv.createdAt);
         const key = d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
         if (months[key]) {
@@ -1188,6 +1188,7 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
     { name: 'UNPAID', value: invoices.filter(i => i.status === 'UNPAID').length, color: '#F59E0B' },
     { name: 'DRAFT', value: invoices.filter(i => i.status === 'DRAFT').length, color: '#94A3B8' },
     { name: 'PROFORMA', value: invoices.filter(i => i.status === 'PROFORMA').length, color: '#3B82F6' },
+    { name: 'CANCELLED', value: invoices.filter(i => i.status === 'CANCELLED' || i.status === 'CANCEL').length, color: '#EF4444' },
   ].filter(d => d.value > 0);
 
 
@@ -1631,6 +1632,7 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                       <option value="PAID">PAID</option>
                       <option value="PROFORMA">PROFORMA</option>
                       <option value="DRAFT">DRAFT</option>
+                      <option value="CANCELLED">CANCELLED</option>
                     </select>
 
                     {/* Region Filter */}
@@ -1884,10 +1886,14 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                           </td>
                           <td className="py-4 px-4 text-center">
                             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${inv.status === 'PAID'
-                              ? 'bg-emerald-55 text-emerald-600 border border-emerald-200'
+                              ? 'bg-emerald-50 text-emerald-600 border border-emerald-200'
                               : inv.status === 'PROFORMA'
                                 ? 'bg-blue-50 text-blue-600 border border-blue-200'
-                                : 'bg-amber-50 text-amber-600 border border-amber-200'
+                                : inv.status === 'CANCELLED'
+                                  ? 'bg-rose-50 text-rose-600 border border-rose-200'
+                                  : inv.status === 'DRAFT'
+                                    ? 'bg-slate-100 text-slate-500 border border-slate-200'
+                                    : 'bg-amber-50 text-amber-600 border border-amber-200'
                               }`}>
                               {inv.status}
                             </span>
@@ -2775,7 +2781,18 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                   <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Invoice Status</label>
                   <select
                     value={invoiceForm.status}
-                    onChange={(e) => setInvoiceForm({ ...invoiceForm, status: e.target.value })}
+                    onChange={(e) => {
+                      const newStatus = e.target.value;
+                      setInvoiceForm(prev => {
+                        let newOrderNo = prev.orderNumber;
+                        if (newStatus === 'DRAFT') {
+                          newOrderNo = '';
+                        } else if ((!newOrderNo || prev.status === 'DRAFT') && newStatus !== 'CANCELLED') {
+                          newOrderNo = generateOrderNumber(newStatus, prev.domesticExport);
+                        }
+                        return { ...prev, status: newStatus, orderNumber: newOrderNo };
+                      });
+                    }}
                     className="w-full p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none text-slate-800 bg-white font-medium"
                   >
                     <option value="TAX INVOICE">TAX INVOICE</option>
@@ -2783,6 +2800,7 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                     <option value="PAID">PAID</option>
                     <option value="PROFORMA">PROFORMA</option>
                     <option value="DRAFT">DRAFT</option>
+                    <option value="CANCELLED">CANCELLED</option>
                   </select>
                 </div>
 
