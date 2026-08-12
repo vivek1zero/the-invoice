@@ -121,6 +121,7 @@ async function fullResetAndImport() {
   const taxIdx = invHeaders.indexOf('Tax');
   const totalIdx = invHeaders.indexOf('Total');
 
+  const monthSeqMap = new Map();
   let invoiceCount = 0;
   for (let i = 1; i < invLines.length; i++) {
     const cols = parseCSVLine(invLines[i]);
@@ -188,11 +189,27 @@ async function fullResetAndImport() {
     const createdDate = createdStr ? new Date(createdStr) : new Date();
     const validDate = isNaN(createdDate.getTime()) ? new Date() : createdDate;
 
+    // Standardized Order Number Generation
+    let formattedOrderNo = '';
+    if (status !== 'DRAFT') {
+      const century = String(validDate.getFullYear()).slice(0, 2);
+      const monthStr = String(validDate.getMonth() + 1).padStart(2, '0');
+      const fiscalMonth = validDate.getMonth();
+      const startYear = fiscalMonth >= 3 ? validDate.getFullYear() : validDate.getFullYear() - 1;
+      const endYear = startYear + 1;
+      const fy = `${String(startYear).slice(-2)}${String(endYear).slice(-2)}`;
+      const prefix = isExport ? 'E' : 'D';
+      const key = `${validDate.getFullYear()}-${monthStr}-${prefix}`;
+      const seq = (monthSeqMap.get(key) || 0) + 1;
+      monthSeqMap.set(key, seq);
+      formattedOrderNo = `${prefix}${century}${fy}${monthStr}${String(seq).padStart(2, '0')}`;
+    }
+
     try {
       await prisma.invoice.create({
         data: {
           invoiceNumber: number,
-          orderNumber: title || number,
+          orderNumber: formattedOrderNo,
           clientId: client.id,
           status: status,
           domesticExport: isExport ? 'Export' : 'Domestic',
