@@ -1603,11 +1603,11 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
 
             {/* Tab Content */}
             {activeTab === 'invoices' && (
-              <section className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm transition-all duration-300">
-                <div className="flex flex-col md:flex-row gap-4 justify-between items-stretch md:items-center mb-6 pb-6 border-b border-slate-100">
+              <section className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm transition-all duration-300">
+                <div className="flex flex-col md:flex-row gap-3 justify-between items-stretch md:items-center mb-4 pb-4 border-b border-slate-100">
                   <div>
-                    <h2 className="text-xl font-bold text-slate-800">Invoices List</h2>
-                    <p className="text-xs text-slate-400 mt-0.5">Showing {filteredInvoices.length} of {invoices.length} entries</p>
+                    <h2 className="text-lg font-bold text-slate-800">Invoices List</h2>
+                    <p className="text-xxs text-slate-400 mt-0.5">Showing {filteredInvoices.length} of {invoices.length} entries</p>
                   </div>
 
                   <div className="flex flex-wrap gap-1.5 items-center">
@@ -1620,7 +1620,7 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                         setSearchQuery(e.target.value);
                         setCurrentPage(1);
                       }}
-                      className="px-2.5 py-2 text-xs border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none text-slate-800 bg-white w-40 sm:w-48"
+                      className="px-2.5 py-1.5 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none text-slate-800 bg-white w-36 sm:w-44"
                     />
 
                     {/* Status Filter */}
@@ -1630,7 +1630,7 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                         setStatusFilter(e.target.value);
                         setCurrentPage(1);
                       }}
-                      className="px-2.5 py-2 text-xs border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none text-slate-800 bg-white"
+                      className="px-2 py-1.5 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none text-slate-800 bg-white"
                     >
                       <option value="ALL">All Statuses</option>
                       <option value="TAX INVOICE">TAX INVOICE</option>
@@ -1648,7 +1648,7 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                         setRegionFilter(e.target.value);
                         setCurrentPage(1);
                       }}
-                      className="px-2.5 py-2 text-xs border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none text-slate-800 bg-white"
+                      className="px-2 py-1.5 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none text-slate-800 bg-white"
                     >
                       <option value="ALL">All Regions</option>
                       <option value="Domestic">Domestic</option>
@@ -1662,7 +1662,7 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                         setClientFilter(e.target.value);
                         setCurrentPage(1);
                       }}
-                      className="px-2.5 py-2 text-xs border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none text-slate-800 bg-white max-w-[150px]"
+                      className="px-2 py-1.5 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none text-slate-800 bg-white max-w-[140px]"
                     >
                       <option value="ALL">All Clients</option>
                       {clients.map(c => (
@@ -1680,22 +1680,22 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                           setRegionFilter('ALL');
                           setCurrentPage(1);
                         }}
-                        className="px-2.5 py-2 text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl border border-slate-300/60 shadow-sm transition-all"
+                        className="px-2 py-1.5 text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg border border-slate-300/60 shadow-sm transition-all"
                       >
-                        Clear Filters
+                        Clear
                       </button>
                     )}
 
                     {/* Divider */}
-                    <div className="h-6 w-px bg-slate-200 mx-1" />
+                    <div className="h-5 w-px bg-slate-200 mx-0.5" />
 
                     {/* Export Excel Button */}
                     <button
                       onClick={handleExportExcel}
                       title="Export current filtered invoices to Excel (.xlsx)"
-                      className="flex items-center gap-1.5 px-2.5 py-2 text-xs font-semibold bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-xl border border-emerald-200 shadow-sm transition-all"
+                      className="flex items-center gap-1 px-2 py-1.5 text-xs font-semibold bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-lg border border-emerald-200 shadow-sm transition-all"
                     >
-                      <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                         <polyline points="7 10 12 15 17 10" />
                         <line x1="12" y1="15" x2="12" y2="3" />
@@ -1708,7 +1708,7 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                       onClick={() => importFileRef.current?.click()}
                       disabled={isImporting}
                       title="Import invoices from Excel (.xlsx) or CSV file"
-                      className="flex items-center gap-1.5 px-2.5 py-2 text-xs font-semibold bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl border border-indigo-200 shadow-sm transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                      className="flex items-center gap-1 px-2 py-1.5 text-xs font-semibold bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg border border-indigo-200 shadow-sm transition-all disabled:opacity-60 disabled:cursor-not-allowed"
                     >
                       {isImporting ? (
                         <svg className="w-3.5 h-3.5 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
