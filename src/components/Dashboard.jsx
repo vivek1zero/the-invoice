@@ -533,6 +533,7 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
   };
 
   const generateOrderNumber = (status, domesticExport) => {
+    if (status === 'DRAFT') return '';
     const now = new Date();
     const century = String(now.getFullYear()).slice(0, 2); // "20"
     const month = String(now.getMonth() + 1).padStart(2, '0'); // "08"
@@ -615,7 +616,7 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
           ...prev,
           id: isConvertingFromProforma ? null : prev.id,
           invoiceNumber: generatedInvoiceNumber,
-          orderNumber: generateOrderNumber(prev.status, prev.domesticExport),
+          orderNumber: prev.status === 'DRAFT' ? '' : generateOrderNumber(prev.status, prev.domesticExport),
           dueDate: prev.dueDate || defaultDueDateStr
         }));
       }
@@ -962,10 +963,15 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
       const url = isEdit ? `/api/invoices/${invoiceForm.id}` : '/api/invoices';
       const method = isEdit ? 'PUT' : 'POST';
 
+      const finalPayload = {
+        ...invoiceForm,
+        orderNumber: invoiceForm.status === 'DRAFT' ? '' : invoiceForm.orderNumber
+      };
+
       const res = await fetch(url, {
         method: method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(invoiceForm)
+        body: JSON.stringify(finalPayload)
       });
       const data = await res.json();
 
