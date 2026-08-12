@@ -579,11 +579,11 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
       defaultDueDate.setDate(defaultDueDate.getDate() + 30);
       const defaultDueDateStr = defaultDueDate.toISOString().split('T')[0];
 
-      const targetPrefix = invoiceForm.status === 'PROFORMA' ? 'PINV-' : (settings.invoice_prefix || 'INV-');
+      const targetPrefix = invoiceForm.status === 'PROFORMA' ? 'PINV-' : invoiceForm.status === 'DRAFT' ? 'INV-D-' : (settings.invoice_prefix || 'INV-');
 
-      // If creating new invoice OR converting Proforma to Tax Invoice
+      // If creating new invoice OR converting Proforma / Draft to Tax Invoice
       const isNew = !invoiceForm.id;
-      const isConvertingFromProforma = invoiceForm.id && invoiceForm.status !== 'PROFORMA' && (invoiceForm.invoiceNumber?.startsWith('PINV-') || invoiceForm.orderNumber?.startsWith('PD') || invoiceForm.orderNumber?.startsWith('PE'));
+      const isConvertingFromProforma = invoiceForm.id && invoiceForm.status !== 'PROFORMA' && invoiceForm.status !== 'DRAFT' && (invoiceForm.invoiceNumber?.startsWith('PINV-') || invoiceForm.invoiceNumber?.startsWith('INV-D-') || invoiceForm.orderNumber?.startsWith('PD') || invoiceForm.orderNumber?.startsWith('PE'));
 
       if (isNew || isConvertingFromProforma) {
         let maxNum = 0;
@@ -2791,12 +2791,36 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                       const newStatus = e.target.value;
                       setInvoiceForm(prev => {
                         let newOrderNo = prev.orderNumber;
+                        let newInvNo = prev.invoiceNumber;
+
                         if (newStatus === 'DRAFT') {
                           newOrderNo = '';
-                        } else if ((!newOrderNo || prev.status === 'DRAFT') && newStatus !== 'CANCELLED') {
-                          newOrderNo = generateOrderNumber(newStatus, prev.domesticExport);
+                          if (newInvNo) {
+                            newInvNo = newInvNo.replace(/^(?:PINV-|INV-)/, 'INV-D-');
+                          }
+                        } else if (newStatus === 'PROFORMA') {
+                          if (newInvNo) {
+                            newInvNo = newInvNo.replace(/^(?:INV-D-|INV-)/, 'PINV-');
+                          }
+                          if (prev.status === 'DRAFT' || !newOrderNo) {
+                            newOrderNo = generateOrderNumber(newStatus, prev.domesticExport);
+                          }
+                        } else {
+                          if (newInvNo) {
+                            const defaultPrefix = settings.invoice_prefix || 'INV-';
+                            newInvNo = newInvNo.replace(/^(?:INV-D-|PINV-)/, defaultPrefix);
+                          }
+                          if (newStatus !== 'CANCELLED' && (prev.status === 'DRAFT' || !newOrderNo)) {
+                            newOrderNo = generateOrderNumber(newStatus, prev.domesticExport);
+                          }
                         }
-                        return { ...prev, status: newStatus, orderNumber: newOrderNo };
+
+                        return {
+                          ...prev,
+                          status: newStatus,
+                          invoiceNumber: newInvNo,
+                          orderNumber: newOrderNo
+                        };
                       });
                     }}
                     className="w-full p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none text-slate-800 bg-white font-medium"
