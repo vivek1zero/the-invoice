@@ -1837,7 +1837,7 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                   <table className="w-full text-left border-collapse">
                     <thead>
                       <tr className="border-b border-slate-200 text-slate-400 text-xs uppercase tracking-wider font-semibold">
-                        <th className="py-4 px-4 w-10 text-center">
+                        <th className="py-2.5 px-3 w-10 text-center">
                           <input
                             type="checkbox"
                             checked={isAllPaginatedSelected}
@@ -1847,13 +1847,13 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                             title="Select / Deselect all visible invoices"
                           />
                         </th>
-                        <th className="py-4 px-4 w-28">Invoice</th>
-                        <th className="py-4 px-4 w-28">Order No</th>
-                        <th className="py-4 px-4">Client</th>
-                        <th className="py-4 px-4 whitespace-nowrap">Date</th>
-                        <th className="py-4 px-4 text-right whitespace-nowrap">Total Amount</th>
-                        <th className="py-4 px-4 text-center w-24">Status</th>
-                        <th className="py-4 px-4 text-center w-24">Actions</th>
+                        <th className="py-2.5 px-3 w-28">Invoice</th>
+                        <th className="py-2.5 px-3 w-28">Order No</th>
+                        <th className="py-2.5 px-3">Client</th>
+                        <th className="py-2.5 px-3 whitespace-nowrap">Date</th>
+                        <th className="py-2.5 px-3 text-right whitespace-nowrap">Total Amount</th>
+                        <th className="py-2.5 px-3 text-center w-24">Status</th>
+                        <th className="py-2.5 px-3 text-center w-24">Actions</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 text-sm">
@@ -1862,7 +1862,7 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                           key={inv.id}
                           className={`transition-colors duration-200 group ${selectedInvoiceIds.includes(inv.id) ? 'bg-red-50/40 hover:bg-red-50/60' : 'hover:bg-slate-50/50'}`}
                         >
-                          <td className="py-4 px-4 text-center">
+                          <td className="py-2.5 px-3 text-center">
                             <input
                               type="checkbox"
                               checked={selectedInvoiceIds.includes(inv.id)}
@@ -1870,28 +1870,28 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                               className="w-4 h-4 rounded border-slate-300 text-[#E94444] focus:ring-[#E94444] cursor-pointer"
                             />
                           </td>
-                          <td className="py-4 px-4 font-mono text-[#E94444] font-semibold">
+                          <td className="py-2.5 px-3 font-mono text-[#E94444] font-semibold text-xs">
                             {inv.invoiceNumber}
                           </td>
-                          <td className="py-4 px-4 font-mono text-slate-500 text-xs">
+                          <td className="py-2.5 px-3 font-mono text-slate-500 text-xs">
                             {inv.orderNumber || 'N/A'}
                           </td>
-                          <td className="py-4 px-4">
-                            <div className="font-semibold text-slate-800">{inv.client?.name || 'Loading client...'}</div>
-                            <div className="text-xs text-slate-400">{inv.client?.email}</div>
+                          <td className="py-2.5 px-3">
+                            <div className="font-semibold text-slate-800 text-xs">{inv.client?.name || 'Loading client...'}</div>
+                            <div className="text-xxs text-slate-400">{inv.client?.email}</div>
                           </td>
-                          <td className="py-4 px-4 text-slate-500 whitespace-nowrap">
+                          <td className="py-2.5 px-3 text-slate-500 text-xs whitespace-nowrap">
                             {new Date(inv.createdAt).toLocaleDateString('en-US', {
                               year: 'numeric',
                               month: 'short',
                               day: 'numeric'
                             })}
                           </td>
-                          <td className="py-4 px-4 text-right font-semibold text-slate-800">
+                          <td className="py-2.5 px-3 text-right font-semibold text-slate-800 text-xs">
                             {getCurrencySymbol(inv)}{inv.totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                           </td>
-                          <td className="py-4 px-4 text-center">
-                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${inv.status === 'PAID'
+                          <td className="py-2.5 px-3 text-center">
+                            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xxs font-semibold ${inv.status === 'PAID'
                               ? 'bg-emerald-50 text-emerald-600 border border-emerald-200'
                               : inv.status === 'PROFORMA'
                                 ? 'bg-blue-50 text-blue-600 border border-blue-200'
@@ -1904,7 +1904,7 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                               {inv.status}
                             </span>
                           </td>
-                          <td className="py-4 px-4 text-center">
+                          <td className="py-2.5 px-3 text-center">
                             <div className="flex justify-center items-center gap-2">
                               <button
                                 onClick={() => setSelectedInvoice(inv)}
