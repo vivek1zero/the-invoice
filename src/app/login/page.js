@@ -99,9 +99,7 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <div className="text-center mt-6 text-xs text-slate-400">
-          Default seed credentials are <span className="font-semibold">admin</span> / <span className="font-semibold">admin123</span>
-        </div>
+
       </div>
     </div>
   );

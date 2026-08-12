@@ -1,11 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
-const crypto = require('crypto');
+const bcrypt = require('bcryptjs');
 const prisma = new PrismaClient();
-
-// Hash password using node built-in crypto module (SHA-256)
-function hashPassword(password) {
-  return crypto.createHash('sha256').update(password).digest('hex');
-}
 
 async function main() {
   console.log("Seeding started...");
@@ -18,15 +13,14 @@ async function main() {
   await prisma.user.deleteMany({});
 
   // 1. Seed Auth User (Admin)
-  // Default username: admin, password: admin123
-  const hashedPassword = hashPassword('admin123');
+  const hashedPassword = bcrypt.hashSync('ZeroAdmin#2026!', 10);
   await prisma.user.create({
     data: {
       username: 'admin',
       password: hashedPassword
     }
   });
-  console.log("Seeded Admin user (admin / admin123)");
+  console.log("Seeded Admin user (admin / ZeroAdmin#2026!)");
 
   // 2. Seed Clients matching Sliced Invoices + PDF details
   // Client 1: UNISON DIRECT ACCOUNTING LLP (Gujarat - Local to Zero Designs Gujarat)

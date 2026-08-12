@@ -130,9 +130,8 @@ function ClientSearchCombobox({ clients, selectedClientId, onSelectClient }) {
                   setIsOpen(false);
                   setSearch('');
                 }}
-                className={`p-3 hover:bg-red-50/70 cursor-pointer transition-colors flex items-center justify-between text-xs ${
-                  c.id === selectedClientId ? 'bg-red-50 border-l-4 border-[#E94444]' : ''
-                }`}
+                className={`p-3 hover:bg-red-50/70 cursor-pointer transition-colors flex items-center justify-between text-xs ${c.id === selectedClientId ? 'bg-red-50 border-l-4 border-[#E94444]' : ''
+                  }`}
               >
                 <div>
                   <div className="font-bold text-slate-900 text-xs flex items-center gap-1.5">
@@ -228,9 +227,8 @@ function StateSearchCombobox({ selectedState, onSelectState }) {
                   setIsOpen(false);
                   setSearch('');
                 }}
-                className={`p-2.5 hover:bg-slate-100 cursor-pointer transition-colors flex items-center justify-between text-xs ${
-                  s.name === selectedState ? 'bg-red-50 font-bold text-[#E94444]' : 'text-slate-800'
-                }`}
+                className={`p-2.5 hover:bg-slate-100 cursor-pointer transition-colors flex items-center justify-between text-xs ${s.name === selectedState ? 'bg-red-50 font-bold text-[#E94444]' : 'text-slate-800'
+                  }`}
               >
                 <span className="font-semibold">{s.name}</span>
                 <span className="font-mono text-[10px] text-slate-500 px-1.5 py-0.5 bg-slate-100 rounded border border-slate-200">
@@ -249,15 +247,17 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('overview');
   const [recentFilter, setRecentFilter] = useState('ALL');
-  
+
   // Independent per-card stats visibility states
-  const [showMonthStats, setShowMonthStats] = useState(false);
-  const [showYearStats, setShowYearStats] = useState(false);
+  const [showSalesStats, setShowSalesStats] = useState(false);
   const [showOutstandingStats, setShowOutstandingStats] = useState(false);
 
-  // Month and Year filter states for Overview stats
-  const [selectedOverviewMonth, setSelectedOverviewMonth] = useState(new Date().getMonth());
-  const [selectedOverviewYear, setSelectedOverviewYear] = useState(new Date().getFullYear());
+  // Month and Year filter states for individual boxes
+  const [salesFilterMonth, setSalesFilterMonth] = useState('ALL');
+  const [salesFilterYear, setSalesFilterYear] = useState('ALL');
+
+  const [outFilterMonth, setOutFilterMonth] = useState('ALL');
+  const [outFilterYear, setOutFilterYear] = useState('ALL');
 
   const [invoices, setInvoices] = useState(initialInvoices || []);
   const [clients, setClients] = useState([]);
@@ -316,6 +316,12 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
   const [settingsSuccess, setSettingsSuccess] = useState('');
   const [settingsError, setSettingsError] = useState('');
   const [regionFilter, setRegionFilter] = useState('ALL');
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordSuccess, setPasswordSuccess] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
 
   // Service Presets management state
   const [newPresetHsn, setNewPresetHsn] = useState('');
@@ -607,6 +613,7 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
 
         setInvoiceForm(prev => ({
           ...prev,
+          id: isConvertingFromProforma ? null : prev.id,
           invoiceNumber: generatedInvoiceNumber,
           orderNumber: generateOrderNumber(prev.status, prev.domesticExport),
           dueDate: prev.dueDate || defaultDueDateStr
@@ -823,6 +830,42 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
     }
   };
 
+  const handlePasswordChange = async (e) => {
+    e.preventDefault();
+    setPasswordError('');
+    setPasswordSuccess('');
+
+    if (newPassword !== confirmPassword) {
+      setPasswordError('New passwords do not match');
+      return;
+    }
+    if (newPassword.length < 6) {
+      setPasswordError('New password must be at least 6 characters long');
+      return;
+    }
+
+    setIsChangingPassword(true);
+    try {
+      const res = await fetch('/api/auth/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ currentPassword, newPassword })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to change password');
+      
+      setPasswordSuccess('Password changed successfully!');
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      setTimeout(() => setPasswordSuccess(''), 3000);
+    } catch (err) {
+      setPasswordError(err.message);
+    } finally {
+      setIsChangingPassword(false);
+    }
+  };
+
   // Handle Line Item Inputs in Invoice Form
   const handleLineItemChange = (index, field, value) => {
     const updatedItems = [...invoiceForm.lineItems];
@@ -1001,66 +1044,6 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
     setIsInvoiceModalOpen(true);
   };
 
-  const handleConvertToOriginal = (id) => {
-    const inv = invoices.find(i => i.id === id);
-    if (!inv) return;
-
-    const defaultDueDate = new Date();
-    defaultDueDate.setDate(defaultDueDate.getDate() + 30);
-    const defaultDueDateStr = defaultDueDate.toISOString().split('T')[0];
-
-    const targetPrefix = settings.invoice_prefix || 'INV-';
-    let maxNum = 0;
-    let padLen = 4;
-    for (const item of invoices) {
-      if (item.invoiceNumber && item.invoiceNumber.startsWith(targetPrefix)) {
-        const numMatch = item.invoiceNumber.match(/(\d+)$/);
-        if (numMatch) {
-          const n = parseInt(numMatch[1], 10);
-          if (n > maxNum) {
-            maxNum = n;
-            padLen = numMatch[1].length;
-          }
-        }
-      }
-    }
-    const nextInvNum = `${targetPrefix}${String(maxNum + 1).padStart(padLen, '0')}`;
-    let nextOrderNum = '';
-    if (inv.orderNumber && inv.orderNumber.startsWith('PD')) {
-      nextOrderNum = 'D' + inv.orderNumber.slice(2);
-    } else if (inv.orderNumber && inv.orderNumber.startsWith('PE')) {
-      nextOrderNum = 'E' + inv.orderNumber.slice(2);
-    } else {
-      nextOrderNum = generateOrderNumber('PAID', inv.domesticExport || 'Domestic');
-    }
-
-    // Open the invoice form pre-filled to create a brand new Tax Invoice
-    setInvoiceForm({
-      id: null,
-      invoiceNumber: nextInvNum,
-      orderNumber: nextOrderNum,
-      clientId: inv.clientId,
-      status: 'PAID',
-      domesticExport: inv.domesticExport || 'Domestic',
-      currency: inv.currency || 'INR',
-      currencySymbol: inv.currencySymbol || '₹',
-      taxRule: inv.taxRule || 'Auto',
-      lutArn: inv.lutArn || '',
-      dueDate: inv.dueDate ? new Date(inv.dueDate).toISOString().split('T')[0] : defaultDueDateStr,
-      discount: inv.discount || 0,
-      lineItems: inv.lineItems.map(item => ({
-        hsnSac: item.hsnSac || '998314',
-        title: item.title,
-        description: item.description || '',
-        unit: item.unit || '1',
-        quantity: item.quantity,
-        amount: item.amount,
-        adjustPercent: item.adjustPercent || 0
-      }))
-    });
-    setSelectedInvoice(null);
-    setIsInvoiceModalOpen(true);
-  };
 
   // ── MULTI-SELECT & BULK ACTION HELPERS ──────────────────────────────────────
   const isAllPaginatedSelected = paginatedInvoices.length > 0 && paginatedInvoices.every(inv => selectedInvoiceIds.includes(inv.id));
@@ -1148,29 +1131,31 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
   // --- OVERVIEW STATS CALCULATION ---
   const totalInvoices = invoices.length;
   const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-  const currentMonthLabel = `${MONTH_NAMES[selectedOverviewMonth]} ${selectedOverviewYear}`;
 
-  const monthlyBilled = invoices.reduce((sum, inv) => {
+  const salesAmount = invoices.reduce((sum, inv) => {
     if (inv.status === 'PROFORMA' || inv.status === 'DRAFT') return sum;
     const d = new Date(inv.createdAt);
-    if (d.getMonth() === Number(selectedOverviewMonth) && d.getFullYear() === Number(selectedOverviewYear)) {
-      return sum + (inv.totalAmount || 0);
-    }
-    return sum;
+    const m = d.getMonth().toString();
+    const y = d.getFullYear().toString();
+
+    if (salesFilterYear !== 'ALL' && y !== salesFilterYear) return sum;
+    if (salesFilterMonth !== 'ALL' && m !== salesFilterMonth) return sum;
+
+    return sum + (inv.totalAmount || 0);
   }, 0);
 
-  const yearlyBilled = invoices.reduce((sum, inv) => {
-    if (inv.status === 'PROFORMA' || inv.status === 'DRAFT') return sum;
+  const outstandingAmount = invoices.reduce((sum, inv) => {
+    if (inv.status !== 'UNPAID') return sum;
     const d = new Date(inv.createdAt);
-    if (d.getFullYear() === Number(selectedOverviewYear)) {
-      return sum + (inv.totalAmount || 0);
-    }
-    return sum;
+    const m = d.getMonth().toString();
+    const y = d.getFullYear().toString();
+
+    if (outFilterYear !== 'ALL' && y !== outFilterYear) return sum;
+    if (outFilterMonth !== 'ALL' && m !== outFilterMonth) return sum;
+
+    return sum + (inv.totalAmount || 0);
   }, 0);
 
-  const outstandingAmount = invoices
-    .filter(inv => inv.status === 'UNPAID')
-    .reduce((sum, inv) => sum + (inv.totalAmount || 0), 0);
   const totalClients = clients.length;
   const recentActivity = [...invoices]
     .filter(inv => recentFilter === 'ALL' || inv.status === recentFilter)
@@ -1329,122 +1314,127 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
             {activeTab === 'overview' && (
               <div className="space-y-6 animate-fade-in-up">
 
-                {/* Stats Control Bar & Filter Pickers */}
+                {/* Stats Control Bar */}
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                   <div>
                     <h3 className="text-sm font-bold text-slate-800 flex items-center gap-1.5">
                       Financial Revenue Overview
                     </h3>
-                    <p className="text-xs text-slate-400 font-medium">Select month & year to view revenue stats. Click eye icon to reveal balance.</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <select
-                      value={selectedOverviewMonth}
-                      onChange={(e) => setSelectedOverviewMonth(Number(e.target.value))}
-                      className="px-3 py-1.5 border border-slate-300 rounded-xl text-xs font-bold text-slate-700 bg-slate-50 outline-none focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444]"
-                    >
-                      {MONTH_NAMES.map((name, idx) => (
-                        <option key={idx} value={idx}>{name}</option>
-                      ))}
-                    </select>
-
-                    <select
-                      value={selectedOverviewYear}
-                      onChange={(e) => setSelectedOverviewYear(Number(e.target.value))}
-                      className="px-3 py-1.5 border border-slate-300 rounded-xl text-xs font-bold text-slate-700 bg-slate-50 outline-none focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444]"
-                    >
-                      <option value={2026}>Year 2026</option>
-                      <option value={2025}>Year 2025</option>
-                      <option value={2024}>Year 2024</option>
-                      <option value={2023}>Year 2023</option>
-                    </select>
+                    <p className="text-xs text-slate-400 font-medium">View revenue stats and outstanding balance by period. Click eye icon to reveal.</p>
                   </div>
                 </div>
 
-                {/* Stats Grid - 3 Clean Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                  {/* Monthly Billed */}
+                {/* Stats Grid - 2 Boxes */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  {/* Sales Revenue */}
                   <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
-                    <div className="flex items-center gap-3.5">
-                      <div className="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink-0">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between">
-                          <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-                            This Month
-                          </p>
-                          <button onClick={() => setShowMonthStats(!showMonthStats)} className="text-slate-400 hover:text-emerald-600 transition-colors" title="Toggle Month Revenue Visibility">
-                            {showMonthStats ? (
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" /></svg>
-                            ) : (
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-                            )}
-                          </button>
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-3.5">
+                        <div className="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink-0">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
                         </div>
-                        <h3 className="text-xl font-bold text-slate-800 cursor-pointer mt-0.5" onClick={() => setShowMonthStats(!showMonthStats)}>
-                          {showMonthStats ? `₹${monthlyBilled.toLocaleString('en-IN', { minimumFractionDigits: 2 })}` : '₹ * * * * *'}
-                        </h3>
-                        <p className="text-[11px] text-emerald-600 font-semibold mt-0.5">{currentMonthLabel}</p>
+                        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                          Sales Revenue
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <select
+                          value={salesFilterMonth}
+                          onChange={(e) => setSalesFilterMonth(e.target.value)}
+                          className="px-2.5 py-1.5 border border-slate-300 rounded-xl text-xs font-bold text-slate-700 bg-slate-50 outline-none focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444]"
+                        >
+                          <option value="ALL">All Months</option>
+                          {MONTH_NAMES.map((name, idx) => (
+                            <option key={idx} value={idx.toString()}>{name}</option>
+                          ))}
+                        </select>
+                        <select
+                          value={salesFilterYear}
+                          onChange={(e) => {
+                            setSalesFilterYear(e.target.value);
+                            setSalesFilterMonth('ALL');
+                          }}
+                          className="px-2.5 py-1.5 border border-slate-300 rounded-xl text-xs font-bold text-slate-700 bg-slate-50 outline-none focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444]"
+                        >
+                          <option value="ALL">All Years</option>
+                          <option value="2026">2026</option>
+                          <option value="2025">2025</option>
+                          <option value="2024">2024</option>
+                          <option value="2023">2023</option>
+                        </select>
+                        <button onClick={() => setShowSalesStats(!showSalesStats)} className="text-slate-400 hover:text-emerald-600 transition-colors ml-1" title="Toggle Sales Visibility">
+                          {showSalesStats ? (
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" /></svg>
+                          ) : (
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                          )}
+                        </button>
                       </div>
                     </div>
-                  </div>
-
-                  {/* Yearly Billed */}
-                  <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
-                    <div className="flex items-center gap-3.5">
-                      <div className="w-11 h-11 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center flex-shrink-0">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                        </svg>
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between">
-                          <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-                            This Year
-                          </p>
-                          <button onClick={() => setShowYearStats(!showYearStats)} className="text-slate-400 hover:text-indigo-600 transition-colors" title="Toggle Year Revenue Visibility">
-                            {showYearStats ? (
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" /></svg>
-                            ) : (
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-                            )}
-                          </button>
-                        </div>
-                        <h3 className="text-xl font-bold text-slate-800 cursor-pointer mt-0.5" onClick={() => setShowYearStats(!showYearStats)}>
-                          {showYearStats ? `₹${yearlyBilled.toLocaleString('en-IN', { minimumFractionDigits: 2 })}` : '₹ * * * * *'}
-                        </h3>
-                        <p className="text-[11px] text-indigo-600 font-semibold mt-0.5">Year {selectedOverviewYear}</p>
-                      </div>
+                    <div>
+                      <h3 className="text-2xl font-bold text-slate-800 cursor-pointer" onClick={() => setShowSalesStats(!showSalesStats)}>
+                        {showSalesStats ? `₹${salesAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}` : '₹ * * * * *'}
+                      </h3>
+                      <p className="text-[11px] text-emerald-600 font-semibold mt-1">
+                        {salesFilterMonth === 'ALL' ? 'All Months' : MONTH_NAMES[parseInt(salesFilterMonth)]} {salesFilterYear === 'ALL' ? '' : salesFilterYear}
+                      </p>
                     </div>
                   </div>
 
                   {/* Outstanding */}
                   <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
-                    <div className="flex items-center gap-3.5">
-                      <div className="w-11 h-11 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center flex-shrink-0">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between">
-                          <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-                            Outstanding
-                          </p>
-                          <button onClick={() => setShowOutstandingStats(!showOutstandingStats)} className="text-slate-400 hover:text-orange-600 transition-colors" title="Toggle Outstanding Visibility">
-                            {showOutstandingStats ? (
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" /></svg>
-                            ) : (
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-                            )}
-                          </button>
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-3.5">
+                        <div className="w-11 h-11 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center flex-shrink-0">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                         </div>
-                        <h3 className="text-xl font-bold text-slate-800 cursor-pointer mt-0.5" onClick={() => setShowOutstandingStats(!showOutstandingStats)}>
-                          {showOutstandingStats ? `₹${outstandingAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}` : '₹ * * * * *'}
-                        </h3>
-                        <p className="text-[11px] text-orange-600 font-semibold mt-0.5">Unpaid balance</p>
+                        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                          Outstanding
+                        </p>
                       </div>
+                      <div className="flex items-center gap-2">
+                        <select
+                          value={outFilterMonth}
+                          onChange={(e) => setOutFilterMonth(e.target.value)}
+                          className="px-2.5 py-1.5 border border-slate-300 rounded-xl text-xs font-bold text-slate-700 bg-slate-50 outline-none focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444]"
+                        >
+                          <option value="ALL">All Months</option>
+                          {MONTH_NAMES.map((name, idx) => (
+                            <option key={idx} value={idx.toString()}>{name}</option>
+                          ))}
+                        </select>
+                        <select
+                          value={outFilterYear}
+                          onChange={(e) => {
+                            setOutFilterYear(e.target.value);
+                            setOutFilterMonth('ALL');
+                          }}
+                          className="px-2.5 py-1.5 border border-slate-300 rounded-xl text-xs font-bold text-slate-700 bg-slate-50 outline-none focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444]"
+                        >
+                          <option value="ALL">All Years</option>
+                          <option value="2026">2026</option>
+                          <option value="2025">2025</option>
+                          <option value="2024">2024</option>
+                          <option value="2023">2023</option>
+                        </select>
+                        <button onClick={() => setShowOutstandingStats(!showOutstandingStats)} className="text-slate-400 hover:text-orange-600 transition-colors ml-1" title="Toggle Outstanding Visibility">
+                          {showOutstandingStats ? (
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" /></svg>
+                          ) : (
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                    <div>
+                      <h3 className="text-2xl font-bold text-slate-800 cursor-pointer" onClick={() => setShowOutstandingStats(!showOutstandingStats)}>
+                        {showOutstandingStats ? `₹${outstandingAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}` : '₹ * * * * *'}
+                      </h3>
+                      <p className="text-[11px] text-orange-600 font-semibold mt-1">
+                        {outFilterMonth === 'ALL' ? 'All Months' : MONTH_NAMES[parseInt(outFilterMonth)]} {outFilterYear === 'ALL' ? '' : outFilterYear}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -1529,8 +1519,8 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                             <td className="py-3 px-6 text-slate-500">{new Date(inv.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</td>
                             <td className="py-3 px-6">
                               <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-bold ${inv.status === 'PAID' ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' :
-                                  inv.status === 'UNPAID' ? 'bg-amber-50 text-amber-600 border border-amber-200' :
-                                    'bg-slate-100 text-slate-600 border border-slate-200'
+                                inv.status === 'UNPAID' ? 'bg-amber-50 text-amber-600 border border-amber-200' :
+                                  'bg-slate-100 text-slate-600 border border-slate-200'
                                 }`}>
                                 {inv.status}
                               </span>
@@ -1613,7 +1603,7 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                     <p className="text-xs text-slate-400 mt-0.5">Showing {filteredInvoices.length} of {invoices.length} entries</p>
                   </div>
 
-                  <div className="flex flex-wrap gap-2 items-center">
+                  <div className="flex flex-wrap gap-1.5 items-center">
                     {/* Search Input */}
                     <input
                       type="text"
@@ -1623,7 +1613,7 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                         setSearchQuery(e.target.value);
                         setCurrentPage(1);
                       }}
-                      className="px-3.5 py-2 text-xs border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none text-slate-800 bg-white w-48 sm:w-60"
+                      className="px-2.5 py-2 text-xs border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none text-slate-800 bg-white w-40 sm:w-48"
                     />
 
                     {/* Status Filter */}
@@ -1633,7 +1623,7 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                         setStatusFilter(e.target.value);
                         setCurrentPage(1);
                       }}
-                      className="px-3.5 py-2 text-xs border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none text-slate-800 bg-white"
+                      className="px-2.5 py-2 text-xs border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none text-slate-800 bg-white"
                     >
                       <option value="ALL">All Statuses</option>
                       <option value="TAX INVOICE">TAX INVOICE</option>
@@ -1650,7 +1640,7 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                         setRegionFilter(e.target.value);
                         setCurrentPage(1);
                       }}
-                      className="px-3.5 py-2 text-xs border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none text-slate-800 bg-white"
+                      className="px-2.5 py-2 text-xs border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none text-slate-800 bg-white"
                     >
                       <option value="ALL">All Regions</option>
                       <option value="Domestic">Domestic</option>
@@ -1664,7 +1654,7 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                         setClientFilter(e.target.value);
                         setCurrentPage(1);
                       }}
-                      className="px-3.5 py-2 text-xs border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none text-slate-800 bg-white max-w-[180px]"
+                      className="px-2.5 py-2 text-xs border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none text-slate-800 bg-white max-w-[150px]"
                     >
                       <option value="ALL">All Clients</option>
                       {clients.map(c => (
@@ -1682,7 +1672,7 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                           setRegionFilter('ALL');
                           setCurrentPage(1);
                         }}
-                        className="px-3.5 py-2 text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl border border-slate-300/60 shadow-sm transition-all"
+                        className="px-2.5 py-2 text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl border border-slate-300/60 shadow-sm transition-all"
                       >
                         Clear Filters
                       </button>
@@ -1695,14 +1685,14 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                     <button
                       onClick={handleExportExcel}
                       title="Export current filtered invoices to Excel (.xlsx)"
-                      className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-xl border border-emerald-200 shadow-sm transition-all"
+                      className="flex items-center gap-1.5 px-2.5 py-2 text-xs font-semibold bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-xl border border-emerald-200 shadow-sm transition-all"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                         <polyline points="7 10 12 15 17 10" />
                         <line x1="12" y1="15" x2="12" y2="3" />
                       </svg>
-                      Export Excel
+                      Export
                     </button>
 
                     {/* Import Excel Button */}
@@ -1710,7 +1700,7 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                       onClick={() => importFileRef.current?.click()}
                       disabled={isImporting}
                       title="Import invoices from Excel (.xlsx) or CSV file"
-                      className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl border border-indigo-200 shadow-sm transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                      className="flex items-center gap-1.5 px-2.5 py-2 text-xs font-semibold bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl border border-indigo-200 shadow-sm transition-all disabled:opacity-60 disabled:cursor-not-allowed"
                     >
                       {isImporting ? (
                         <svg className="w-3.5 h-3.5 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
@@ -1723,7 +1713,7 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                           <line x1="12" y1="5" x2="12" y2="15" />
                         </svg>
                       )}
-                      {isImporting ? 'Importing...' : 'Import Excel'}
+                      {isImporting ? 'Importing...' : 'Import'}
                     </button>
                     <input
                       ref={importFileRef}
@@ -1849,13 +1839,13 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                             title="Select / Deselect all visible invoices"
                           />
                         </th>
-                        <th className="py-4 px-4">Invoice</th>
-                        <th className="py-4 px-4">Order No</th>
+                        <th className="py-4 px-4 w-28">Invoice</th>
+                        <th className="py-4 px-4 w-28">Order No</th>
                         <th className="py-4 px-4">Client</th>
-                        <th className="py-4 px-4">Date</th>
-                        <th className="py-4 px-4 text-right">Total Amount</th>
-                        <th className="py-4 px-4 text-center">Status</th>
-                        <th className="py-4 px-4 text-center">Actions</th>
+                        <th className="py-4 px-4 whitespace-nowrap">Date</th>
+                        <th className="py-4 px-4 text-right whitespace-nowrap">Total Amount</th>
+                        <th className="py-4 px-4 text-center w-24">Status</th>
+                        <th className="py-4 px-4 text-center w-24">Actions</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 text-sm">
@@ -1882,7 +1872,7 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                             <div className="font-semibold text-slate-800">{inv.client?.name || 'Loading client...'}</div>
                             <div className="text-xs text-slate-400">{inv.client?.email}</div>
                           </td>
-                          <td className="py-4 px-4 text-slate-500">
+                          <td className="py-4 px-4 text-slate-500 whitespace-nowrap">
                             {new Date(inv.createdAt).toLocaleDateString('en-US', {
                               year: 'numeric',
                               month: 'short',
@@ -1914,18 +1904,7 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                                   <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                                 </svg>
                               </button>
-                               {inv.status === 'PROFORMA' && (
-                                <button
-                                  onClick={() => handleConvertToOriginal(inv.id)}
-                                  className="px-2 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold rounded-lg border border-emerald-200 transition-all flex items-center gap-1"
-                                  title="Convert Proforma to Official Tax Invoice (INV-xxxx)"
-                                >
-                                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3.5 h-3.5">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
-                                  </svg>
-                                  Convert
-                                </button>
-                               )}
+
                               <button
                                 onClick={() => handleStartEditInvoice(inv)}
                                 className="p-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-lg border border-indigo-200 transition-all"
@@ -2272,6 +2251,78 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
               </section>
             )}
 
+            {activeTab === 'settings' && (
+              <section className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm transition-all duration-300 mt-6">
+                <div className="border-b border-slate-100 pb-4 mb-6">
+                  <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-[#E94444]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                    Security Settings
+                  </h2>
+                  <p className="text-xs text-slate-400 mt-0.5">Change your administrator password.</p>
+                </div>
+
+                {passwordSuccess && (
+                  <div className="mb-4 p-3 bg-emerald-50 border border-emerald-200 text-emerald-600 rounded-xl text-xs font-semibold">
+                    {passwordSuccess}
+                  </div>
+                )}
+
+                {passwordError && (
+                  <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-600 rounded-xl text-xs font-semibold">
+                    {passwordError}
+                  </div>
+                )}
+
+                <form onSubmit={handlePasswordChange} className="space-y-6 w-full max-w-md">
+                  <div className="space-y-4 bg-slate-50/50 p-6 border border-slate-200 rounded-2xl">
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-600 mb-1">Current Password</label>
+                      <input
+                        type="password"
+                        required
+                        value={currentPassword}
+                        onChange={(e) => setCurrentPassword(e.target.value)}
+                        className="w-full p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none text-slate-800 bg-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-600 mb-1">New Password</label>
+                      <input
+                        type="password"
+                        required
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        className="w-full p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none text-slate-800 bg-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-600 mb-1">Confirm New Password</label>
+                      <input
+                        type="password"
+                        required
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        className="w-full p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none text-slate-800 bg-white"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end pt-2">
+                    <button
+                      type="submit"
+                      disabled={isChangingPassword}
+                      className="px-6 py-2.5 bg-slate-800 hover:bg-slate-900 text-white font-semibold rounded-xl disabled:opacity-50 transition-colors shadow"
+                    >
+                      {isChangingPassword ? 'Changing Password...' : 'Change Password'}
+                    </button>
+                  </div>
+                </form>
+              </section>
+            )}
+
             {/* Invoice Detail Modal */}
             {selectedInvoice && (
               <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-950/40 backdrop-blur-sm animate-fade-in">
@@ -2333,7 +2384,6 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                             <tr className="bg-slate-100/70 text-slate-600 border-b border-slate-200 font-bold uppercase text-[11px] tracking-wider">
                               <th className="py-3 px-4">HSN/SAC</th>
                               <th className="py-3 px-4">Item & Description</th>
-                              <th className="py-3 px-4 text-center">Unit</th>
                               <th className="py-3 px-4 text-center">Qty</th>
                               <th className="py-3 px-4 text-right">Rate</th>
                               <th className="py-3 px-4 text-right">Adj %</th>
@@ -2350,7 +2400,6 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                                     <div className="text-xs text-slate-500 mt-0.5 leading-relaxed">{item.description}</div>
                                   )}
                                 </td>
-                                <td className="py-3.5 px-4 text-center">{item.unit || '1'}</td>
                                 <td className="py-3.5 px-4 text-center font-semibold">{item.quantity}</td>
                                 <td className="py-3.5 px-4 text-right font-medium">{getCurrencySymbol(selectedInvoice)}{item.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
                                 <td className="py-3.5 px-4 text-right text-slate-500">{item.adjustPercent}%</td>
@@ -2424,14 +2473,7 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                   {/* Modal Footer (Organized Actions for Full vs Stationery) */}
                   <div className="border-t border-slate-200 pt-4 mt-6 flex flex-wrap justify-between items-center gap-3">
                     <div className="flex gap-2">
-                      {selectedInvoice.status === 'PROFORMA' && (
-                        <button
-                          onClick={() => handleConvertToOriginal(selectedInvoice.id)}
-                          className="px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 text-sm font-semibold rounded-xl border border-blue-200 transition-colors"
-                        >
-                          Convert to Original
-                        </button>
-                      )}
+
                       <button
                         onClick={() => handleStartEditInvoice(selectedInvoice)}
                         className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold rounded-xl border border-slate-200 transition-colors"
@@ -2853,18 +2895,6 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
 
                       <div className="grid grid-cols-5 gap-3">
                         <div className="col-span-1">
-                          <label className="block text-xxs font-bold text-slate-400 uppercase mb-0.5">Unit</label>
-                          <input
-                            type="text"
-                            required
-                            placeholder="1"
-                            value={item.unit}
-                            onChange={(e) => handleLineItemChange(index, 'unit', e.target.value)}
-                            className="w-full p-2 border border-slate-300 rounded-lg text-sm bg-white text-center"
-                          />
-                        </div>
-
-                        <div className="col-span-1">
                           <label className="block text-xxs font-bold text-slate-400 uppercase mb-0.5">Qty / Hrs</label>
                           <input
                             type="number"
@@ -3075,8 +3105,8 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                 type="button"
                 onClick={() => setPdfViewerStationery(false)}
                 className={`px-3 py-1.5 rounded-lg font-semibold transition-all ${!pdfViewerStationery
-                    ? 'bg-[#E94444] text-white shadow-sm'
-                    : 'text-slate-400 hover:text-slate-200'
+                  ? 'bg-[#E94444] text-white shadow-sm'
+                  : 'text-slate-400 hover:text-slate-200'
                   }`}
               >
                 Full PDF (With Header/Footer)
@@ -3085,8 +3115,8 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                 type="button"
                 onClick={() => setPdfViewerStationery(true)}
                 className={`px-3 py-1.5 rounded-lg font-semibold transition-all ${pdfViewerStationery
-                    ? 'bg-[#E94444] text-white shadow-sm'
-                    : 'text-slate-400 hover:text-slate-200'
+                  ? 'bg-[#E94444] text-white shadow-sm'
+                  : 'text-slate-400 hover:text-slate-200'
                   }`}
               >
                 Stationery (No Header/Footer)
@@ -3182,12 +3212,12 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
             <div className="flex items-start gap-4">
               {/* Icon based on modalConfig.type */}
               <div className={`w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 ${modalConfig.type === 'danger'
-                  ? 'bg-red-50 text-red-600 border border-red-100'
-                  : modalConfig.type === 'warning'
-                    ? 'bg-amber-50 text-amber-600 border border-amber-100'
-                    : modalConfig.type === 'success'
-                      ? 'bg-emerald-50 text-emerald-600 border border-emerald-100'
-                      : 'bg-indigo-50 text-indigo-600 border border-indigo-100'
+                ? 'bg-red-50 text-red-600 border border-red-100'
+                : modalConfig.type === 'warning'
+                  ? 'bg-amber-50 text-amber-600 border border-amber-100'
+                  : modalConfig.type === 'success'
+                    ? 'bg-emerald-50 text-emerald-600 border border-emerald-100'
+                    : 'bg-indigo-50 text-indigo-600 border border-indigo-100'
                 }`}>
                 {modalConfig.type === 'danger' && (
                   <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
@@ -3237,10 +3267,10 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                   if (fn) await fn();
                 }}
                 className={`px-5 py-2 text-white font-semibold text-xs rounded-xl shadow-sm transition-all ${modalConfig.type === 'danger'
-                    ? 'bg-[#E94444] hover:bg-[#d63a3a]'
-                    : modalConfig.type === 'warning'
-                      ? 'bg-amber-600 hover:bg-amber-700'
-                      : 'bg-indigo-600 hover:bg-indigo-700'
+                  ? 'bg-[#E94444] hover:bg-[#d63a3a]'
+                  : modalConfig.type === 'warning'
+                    ? 'bg-amber-600 hover:bg-amber-700'
+                    : 'bg-indigo-600 hover:bg-indigo-700'
                   }`}
               >
                 {modalConfig.confirmText || 'OK'}

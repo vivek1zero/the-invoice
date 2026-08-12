@@ -1,15 +1,11 @@
 import { NextResponse } from 'next/server';
-import crypto from 'crypto';
 import { SignJWT } from 'jose';
 import prisma from '@/lib/prisma';
+import bcrypt from 'bcryptjs';
 
 const JWT_SECRET = new TextEncoder().encode(
   process.env.JWT_SECRET || 'zerodesignsinvoicingsecretkey'
 );
-
-function hashPassword(password) {
-  return crypto.createHash('sha256').update(password).digest('hex');
-}
 
 export async function POST(request) {
   try {
@@ -20,7 +16,7 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Username and password are required' }, { status: 400 });
     }
 
-    // Find user in SQLite
+    // Find user in database
     const user = await prisma.user.findUnique({
       where: { username: username.toLowerCase().trim() }
     });
@@ -29,9 +25,19 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Invalid username or password' }, { status: 401 });
     }
 
-    // Verify password hash
-    const inputHash = hashPassword(password);
-    if (user.password !== inputHash) {
+    // Verify password hash with bcrypt
+    // Fallback to SHA256 comparison for migration purposes if password doesn't start with bcrypt prefix
+    let isValid = false;
+    if (user.password.startsWith('$2a$') || user.password.startsWith('$2b$') || user.password.startsWith('$2y$')) {
+      isValid = await bcrypt.compare(password, user.password);
+    } else {
+      // Legacy SHA256 check
+      const crypto = require('crypto');
+      const inputHash = crypto.createHash('sha256').update(password).digest('hex');
+      isValid = (user.password === inputHash);
+    }
+
+    if (!isValid) {
       return NextResponse.json({ error: 'Invalid username or password' }, { status: 401 });
     }
 
