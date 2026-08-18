@@ -45,8 +45,8 @@ async function fullResetAndImport() {
   await prisma.client.deleteMany({});
   console.log('Cleared existing LineItems, Invoices, and Clients from database.');
 
-  // 2. Parse user-export.csv
-  const userCsvPath = 'C:\\Users\\Admin\'\\Desktop\\zero\\user-export.csv';
+  // 2. Parse user-export (2).csv
+  const userCsvPath = 'C:\\Users\\Admin\'\\Desktop\\zero\\user-export (2).csv';
   const userFileContent = fs.readFileSync(userCsvPath, 'utf-8').replace(/^\uFEFF/, '');
   const userLines = userFileContent.split(/\r?\n/).filter(line => line.trim().length > 0);
   const userHeaders = parseCSVLine(userLines[0]);
@@ -103,8 +103,8 @@ async function fullResetAndImport() {
   }
   console.log(`Successfully created ${clientCount} clients from user-export.csv`);
 
-  // 3. Parse invoice-export-2026-07-22.csv
-  const invCsvPath = 'C:\\Users\\Admin\'\\Desktop\\zero\\invoice-export-2026-07-22.csv';
+  // 3. Parse invoice-export-2026-08-12.csv
+  const invCsvPath = 'C:\\Users\\Admin\'\\Desktop\\zero\\invoice-export-2026-08-12.csv';
   const invFileContent = fs.readFileSync(invCsvPath, 'utf-8').replace(/^\uFEFF/, '');
   const invLines = invFileContent.split(/\r?\n/).filter(line => line.trim().length > 0);
   const invHeaders = parseCSVLine(invLines[0]);
@@ -205,10 +205,15 @@ async function fullResetAndImport() {
       formattedOrderNo = `${prefix}${century}${fy}${monthStr}${String(seq).padStart(2, '0')}`;
     }
 
+    let formattedInvNo = number;
+    if (status === 'DRAFT' && formattedInvNo.startsWith('INV-')) {
+      formattedInvNo = formattedInvNo.replace(/^INV-/, 'INV-D-');
+    }
+
     try {
       await prisma.invoice.create({
         data: {
-          invoiceNumber: number,
+          invoiceNumber: formattedInvNo,
           orderNumber: formattedOrderNo,
           clientId: client.id,
           status: status,
@@ -245,7 +250,7 @@ async function fullResetAndImport() {
     }
   }
 
-  console.log(`Successfully imported ${invoiceCount} invoices from invoice-export-2026-07-22.csv`);
+  console.log(`Successfully imported ${invoiceCount} invoices from invoice-export-2026-08-12.csv`);
   console.log('--- RE-IMPORT COMPLETE ---');
 }
 
