@@ -429,13 +429,7 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
     const matchClientName = inv.client?.name ? inv.client.name.toLowerCase().includes(query) : false;
     const matchesSearch = query === '' || matchNumber || matchOrder || matchClientName;
 
-    const matchesStatus = statusFilter === 'ALL'
-      ? inv.status !== 'DRAFT'
-      : statusFilter === 'ALL_INCL_DRAFT'
-      ? true
-      : statusFilter === 'TAX INVOICE'
-      ? (inv.status === 'PAID' || inv.status === 'UNPAID')
-      : inv.status === statusFilter;
+    const matchesStatus = statusFilter === 'ALL' || inv.status === statusFilter;
     const matchesClient = clientFilter === 'ALL' || inv.clientId === clientFilter;
     const matchesRegion = regionFilter === 'ALL' || inv.domesticExport === regionFilter;
 
@@ -1638,8 +1632,7 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                       }}
                       className="px-2 py-1.5 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none text-slate-800 bg-white"
                     >
-                      <option value="ALL">All Active (Excl. Drafts)</option>
-                      <option value="ALL_INCL_DRAFT">All (Incl. Drafts)</option>
+                      <option value="ALL">All Statuses</option>
                       <option value="TAX INVOICE">TAX INVOICE</option>
                       <option value="UNPAID">UNPAID</option>
                       <option value="PAID">PAID</option>
