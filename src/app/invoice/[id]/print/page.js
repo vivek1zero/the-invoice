@@ -295,15 +295,15 @@ export default async function PrintInvoicePage({ params, searchParams }) {
                 {/* Header Row */}
                 <div className="bg-[#2C3E50] text-white py-2.5 px-1 font-bold text-left" style={{ padding: '15px 15px' }}>
                   DATE<br />
-                  <span className="text-white text-[12px] font-medium inline-block">{formatDate(invoice.createdAt)}</span>
+                  <span className="text-white text-[16px] font-medium inline-block mt-0.5" style={{ fontSize: '16px' }}>{formatDate(invoice.createdAt)}</span>
                 </div>
                 <div className="text-white py-2.5 px-1 font-bold text-left flex flex-col justify-center" style={{ backgroundColor: themeBgHex, padding: '15px 15px' }}>
                   <span>PLEASE PAY</span>
-                  <span className="text-white text-[12px] font-bold inline-block">{currSym} {invoice.totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                  <span className="text-white text-[16px] font-bold inline-block mt-0.5" style={{ fontSize: '16px' }}>{currSym} {invoice.totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
                 </div>
                 <div className="bg-[#2C3E50] text-white py-2.5 px-1 font-bold text-left" style={{ padding: '15px 15px' }}>
                   DUE DATE<br />
-                  <span className="text-white text-[12px] font-medium inline-block">{formatDate(invoice.dueDate || invoice.createdAt)}</span>
+                  <span className="text-white text-[16px] font-medium inline-block mt-0.5" style={{ fontSize: '16px' }}>{formatDate(invoice.dueDate || invoice.createdAt)}</span>
                 </div>
               </div>
             </div>
