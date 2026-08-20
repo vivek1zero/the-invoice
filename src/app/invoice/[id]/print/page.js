@@ -438,9 +438,9 @@ export default async function PrintInvoicePage({ params, searchParams }) {
                 )}
 
                 {/* Total Due Row */}
-                <div className="bg-[#2C3E50] text-white flex justify-between px-4 py-2.5 text-sm font-bold rounded-none mt-2">
+                <div className="bg-[#2C3E50] text-white flex justify-between items-center px-4 py-2.5 text-sm font-bold rounded-none mt-2">
                   <span>Total Due</span>
-                  <span>
+                  <span style={{ fontSize: '1.2rem' }}>
                     {currSym} {invoice.totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                   </span>
                 </div>
