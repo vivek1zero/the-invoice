@@ -134,6 +134,19 @@ export default async function PrintInvoicePage({ params, searchParams }) {
       .trim();
   };
 
+  const decodeHtmlEntities = (str) => {
+    if (!str || typeof str !== 'string') return '';
+    return str
+      .replace(/&amp;amp;/g, '&')
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace(/&#039;/g, "'")
+      .replace(/&nbsp;/g, ' ')
+      .trim();
+  };
+
   const cleanAddress = cleanJurisdiction(settings.business_address);
   const cleanExtraInfo = cleanJurisdiction(settings.business_extra_info);
 
@@ -332,7 +345,7 @@ export default async function PrintInvoicePage({ params, searchParams }) {
                       <td className="py-4 px-2 text-slate-600">{item.hsnSac || '998314'}</td>
                       <td className="py-4 px-2">
                         <div className="text-slate-800 font-medium leading-relaxed text-[12px] whitespace-pre-line">
-                          {item.description || item.title || 'Services'}
+                          {decodeHtmlEntities(item.description || item.title || 'Services')}
                         </div>
                       </td>
                       <td className="py-4 px-2 text-center">{item.unit || '1'}</td>

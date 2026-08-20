@@ -61,6 +61,19 @@ function parseCSV(text) {
   return lines;
 }
 
+function decodeHtmlEntities(str) {
+  if (!str || typeof str !== 'string') return '';
+  return str
+    .replace(/&amp;amp;/g, '&')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#039;/g, "'")
+    .replace(/&nbsp;/g, ' ')
+    .trim();
+}
+
 function parseAmount(val) {
   if (!val) return 0;
   return parseFloat(String(val).replace(/,/g, '').replace(/[₹$]/g, '').trim()) || 0;
@@ -221,8 +234,8 @@ async function main() {
     existing.orderNumber = String(r['Order No'] || '').trim();
     existing.dueDate = r['Due Date'] ? parseDate(r['Due Date']) : null;
     existing.region = String(r['Region'] || 'Domestic').trim();
-    existing.hsnSac = String(r['HSN/SAC'] || '').trim();
-    existing.description = String(r['Description'] || '').trim();
+    existing.hsnSac = decodeHtmlEntities(String(r['HSN/SAC'] || '').trim());
+    existing.description = decodeHtmlEntities(String(r['Description'] || '').trim());
   }
 
   console.log(`✔ Combined ${invMap.size} total Invoices to import!\n`);
