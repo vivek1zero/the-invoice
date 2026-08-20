@@ -268,7 +268,7 @@ export default async function PrintInvoicePage({ params, searchParams }) {
 
             return (
               <div className="mb-6 font-medium">
-                <div className="text-[11.5px] uppercase font-semibold mb-0.5" style={{ color: '#777' }}>INVOICE TO</div>
+                <div className="text-[11.5px] uppercase font-bold mb-0.5" style={{ color: '#777', fontWeight: 700 }}>INVOICE TO</div>
                 {contactName && (
                   <div className="text-slate-800 text-[12.5px] font-medium mb-1.5">{contactName}</div>
                 )}
