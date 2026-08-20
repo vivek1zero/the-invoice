@@ -1874,7 +1874,7 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                             {inv.invoiceNumber}
                           </td>
                           <td className="py-2.5 px-3 font-mono text-slate-500 text-xs">
-                            {inv.orderNumber || 'N/A'}
+                            {inv.status === 'DRAFT' ? '-' : (inv.orderNumber || '-')}
                           </td>
                           <td className="py-2.5 px-3">
                             <div className="font-semibold text-slate-800 text-xs">{inv.client?.name || 'Loading client...'}</div>
