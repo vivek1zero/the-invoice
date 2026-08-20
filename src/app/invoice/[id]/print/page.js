@@ -331,21 +331,9 @@ export default async function PrintInvoicePage({ params, searchParams }) {
                       <td className="py-4 px-2 text-center font-medium">{idx + 1}</td>
                       <td className="py-4 px-2 text-slate-600">{item.hsnSac || '998314'}</td>
                       <td className="py-4 px-2">
-                        <div className="font-medium text-slate-900 text-[12.5px]">
-                          {(() => {
-                            if (!item.title) return item.hsnSac ? `${item.hsnSac} - Services` : 'Services';
-                            const cleaned = item.title
-                              .replace(/(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{2}-\d{3}/gi, '')
-                              .replace(/(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{1,2},?\s+\d{4}/gi, '')
-                              .replace(/\b\d{4}-\d{2}-\d{2}\b/g, '')
-                              .replace(/\b\d{2}\/\d{2}\/\d{4}\b/g, '')
-                              .trim();
-                            return (cleaned && !/^\d+$/.test(cleaned) && cleaned.length >= 2) ? cleaned : (item.hsnSac ? `${item.hsnSac} - Services` : 'Services');
-                          })()}
+                        <div className="text-slate-800 font-medium leading-relaxed text-[12px] whitespace-pre-line">
+                          {item.description || item.title || 'Services'}
                         </div>
-                        {item.description && (
-                          <div className="text-slate-500 mt-0.5 font-normal leading-relaxed text-[12px]">{item.description}</div>
-                        )}
                       </td>
                       <td className="py-4 px-2 text-center">{item.unit || '1'}</td>
                       <td className="py-4 px-2 text-center">{item.quantity}</td>
