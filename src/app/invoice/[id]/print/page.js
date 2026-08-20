@@ -178,7 +178,7 @@ export default async function PrintInvoicePage({ params, searchParams }) {
             min-height: 297mm !important;
             box-sizing: border-box !important;
             margin: 0 auto !important;
-            padding: 16mm 20mm 14mm 20mm !important;
+            padding: 12mm 12mm 12mm 12mm !important;
             letter-spacing: normal !important;
             box-shadow: none !important;
             border: none !important;
@@ -214,7 +214,7 @@ export default async function PrintInvoicePage({ params, searchParams }) {
       <div 
         id="invoice-pdf-container"
         style={{ fontFamily: "'Montserrat', sans-serif", letterSpacing: 'normal' }}
-        className="bg-white text-slate-800 pt-16 pb-6 pl-10 pr-6 max-w-[850px] mx-auto relative text-sm overflow-hidden flex flex-col min-h-[1050px]"
+        className="bg-white text-slate-800 pt-14 pb-6 px-8 max-w-[850px] mx-auto relative text-sm overflow-hidden flex flex-col min-h-[1050px]"
       >
         {/* Dynamic Printing Script */}
         <TriggerPrint />
@@ -268,11 +268,11 @@ export default async function PrintInvoicePage({ params, searchParams }) {
 
             return (
               <div className="mb-6 font-medium">
-                <div className="text-slate-400 uppercase font-semibold text-[11.5px] mb-0.5">INVOICE TO</div>
+                <div className="text-[11.5px] uppercase font-semibold mb-0.5" style={{ color: '#777' }}>INVOICE TO</div>
                 {contactName && (
-                  <div className="text-slate-800 text-[12.5px] font-medium mb-0.5">{contactName}</div>
+                  <div className="text-slate-800 text-[12.5px] font-medium mb-1.5">{contactName}</div>
                 )}
-                <div className="font-bold text-slate-900 text-base">{client?.name || 'Client Name'}</div>
+                <div className="font-bold text-[12.5px]" style={{ color: '#777' }}>{client?.name || 'Client Name'}</div>
                 <div className="text-slate-600 leading-normal text-[12px] mt-0.5 whitespace-pre-line max-w-[500px]">
                   {client?.address || 'Address not specified'}
                 </div>
