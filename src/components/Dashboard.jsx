@@ -965,7 +965,11 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
 
       const finalPayload = {
         ...invoiceForm,
-        orderNumber: invoiceForm.status === 'DRAFT' ? '' : invoiceForm.orderNumber
+        orderNumber: invoiceForm.status === 'DRAFT' ? '' : invoiceForm.orderNumber,
+        lineItems: invoiceForm.lineItems.map(item => ({
+          ...item,
+          title: item.title || invoiceForm.title || 'Services'
+        }))
       };
 
       const res = await fetch(url, {
@@ -2719,6 +2723,17 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                   />
                 </div>
 
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Invoice Title / Subject</label>
+                  <input
+                    type="text"
+                    value={invoiceForm.title || ''}
+                    onChange={(e) => setInvoiceForm({ ...invoiceForm, title: e.target.value })}
+                    placeholder="e.g. Raudratech August 26-001 or Web Development Services"
+                    className="w-full p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none text-slate-800 bg-white font-medium text-sm"
+                  />
+                </div>
+
                 <ClientSearchCombobox
                   clients={clients}
                   selectedClientId={invoiceForm.clientId}
@@ -2873,59 +2888,51 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                         &times;
                       </button>
 
-                      <div className="mb-2">
-                        <label className="block text-xxs font-bold text-slate-500 uppercase mb-1 flex items-center justify-between">
-                          <span className="flex items-center gap-1 text-[#E94444]">
-                            ⚡ Quick Service Preset
-                          </span>
-                          <span className="text-slate-400 text-[10px] lowercase font-normal">
-                            (select option to auto-fill HSN & Title)
-                          </span>
-                        </label>
-                        <select
-                          onChange={(e) => {
-                            const val = e.target.value;
-                            if (!val) return;
-                            const selected = servicePresetsList.find(p => p.hsnSac === val || p.label === val);
-                            if (selected) {
-                              handleLineItemChange(index, 'hsnSac', selected.hsnSac);
-                              handleLineItemChange(index, 'title', selected.title);
-                            }
-                          }}
-                          className="w-full p-2 border border-slate-300 rounded-lg text-xs bg-slate-50 text-slate-800 font-medium focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none"
-                          defaultValue=""
-                        >
-                          <option value="">-- Choose Service Preset ({servicePresetsList.map(p => p.hsnSac).join(', ')}) --</option>
-                          {servicePresetsList.map((preset, pIdx) => (
-                            <option key={pIdx} value={preset.hsnSac}>
-                              {preset.label || `${preset.hsnSac} - ${preset.title}`}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
+                      <div className="grid grid-cols-12 gap-3 mb-2">
+                        {/* Quick Service Preset (Left 8 Columns) */}
+                        <div className="col-span-8">
+                          <label className="block text-xxs font-bold text-slate-500 uppercase mb-1 flex items-center justify-between">
+                            <span className="flex items-center gap-1 text-[#E94444]">
+                              ⚡ Quick Service Preset
+                            </span>
+                            <span className="text-slate-400 text-[10px] lowercase font-normal">
+                              (auto-fill HSN)
+                            </span>
+                          </label>
+                          <select
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              if (!val) return;
+                              const selected = servicePresetsList.find(p => p.hsnSac === val || p.label === val);
+                              if (selected) {
+                                handleLineItemChange(index, 'hsnSac', selected.hsnSac);
+                                if (!item.title) {
+                                  handleLineItemChange(index, 'title', selected.title);
+                                }
+                              }
+                            }}
+                            className="w-full p-2 border border-slate-300 rounded-lg text-xs bg-slate-50 text-slate-800 font-medium focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none"
+                            value={item.hsnSac || ""}
+                          >
+                            <option value="">-- Choose Service Preset ({servicePresetsList.map(p => p.hsnSac).join(', ')}) --</option>
+                            {servicePresetsList.map((preset, pIdx) => (
+                              <option key={pIdx} value={preset.hsnSac}>
+                                {preset.label || `${preset.hsnSac} - ${preset.title}`}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
 
-                      <div className="grid grid-cols-12 gap-3">
-                        <div className="col-span-3">
-                          <label className="block text-xxs font-bold text-slate-400 uppercase mb-0.5">HSN/SAC</label>
+                        {/* HSN/SAC Input (Right 4 Columns) */}
+                        <div className="col-span-4">
+                          <label className="block text-xxs font-bold text-slate-500 uppercase mb-1">HSN/SAC</label>
                           <input
                             type="text"
                             required
                             placeholder="998314"
                             value={item.hsnSac}
                             onChange={(e) => handleLineItemChange(index, 'hsnSac', e.target.value)}
-                            className="w-full p-2 border border-slate-300 rounded-lg text-sm bg-white font-mono"
-                          />
-                        </div>
-
-                        <div className="col-span-9">
-                          <label className="block text-xxs font-bold text-slate-400 uppercase mb-0.5">Item Title</label>
-                          <input
-                            type="text"
-                            required
-                            placeholder="e.g. Web Development Services"
-                            value={item.title}
-                            onChange={(e) => handleLineItemChange(index, 'title', e.target.value)}
-                            className="w-full p-2 border border-slate-300 rounded-lg text-sm bg-white"
+                            className="w-full p-2 border border-slate-300 rounded-lg text-xs bg-white font-mono text-slate-800 focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none"
                           />
                         </div>
                       </div>
