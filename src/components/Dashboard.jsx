@@ -1882,6 +1882,9 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                           </td>
                           <td className="py-2.5 px-3">
                             <div className="font-semibold text-slate-800 text-xs">{inv.client?.name || 'Loading client...'}</div>
+                            {inv.lineItems?.[0]?.title && (
+                              <div className="text-xxs text-[#E94444] font-medium">{inv.lineItems[0].title}</div>
+                            )}
                             <div className="text-xxs text-slate-400">{inv.client?.email}</div>
                           </td>
                           <td className="py-2.5 px-3 text-slate-500 text-xs whitespace-nowrap">
