@@ -2900,7 +2900,6 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                   </div>
                 </div>
               </div>
-              </div>
 
               {/* Line Items builder */}
               <div>
