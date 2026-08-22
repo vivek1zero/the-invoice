@@ -2976,7 +2976,6 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                           />
                         </div>
                       </div>
-                      </div>
 
                       <div>
                         <label className="block text-xxs font-bold text-slate-400 uppercase mb-0.5">Description</label>
