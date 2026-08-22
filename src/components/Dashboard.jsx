@@ -2870,10 +2870,10 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                   </select>
                 </div>
 
-                {/* Same Row 2-Column Grid for Start Date and Due Date */}
-                <div className="sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                {/* Right Column directly next to Invoice Status: Start Date & Due Date side-by-side */}
+                <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <label className="block text-xs font-bold text-slate-600 uppercase mb-1 flex items-center gap-1">
+                    <label className="block text-xs font-bold text-slate-500 uppercase mb-1 flex items-center gap-1">
                       <span>📅</span> Start Date
                     </label>
                     <input
@@ -2881,12 +2881,12 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                       value={invoiceForm.createdAt || new Date().toISOString().split('T')[0]}
                       onClick={(e) => e.target.showPicker && e.target.showPicker()}
                       onChange={(e) => setInvoiceForm({ ...invoiceForm, createdAt: e.target.value })}
-                      className="w-full p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none text-slate-800 bg-white font-medium cursor-pointer shadow-sm"
+                      className="w-full p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none text-slate-800 bg-white font-medium cursor-pointer text-xs"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-600 uppercase mb-1 flex items-center gap-1">
+                    <label className="block text-xs font-bold text-slate-500 uppercase mb-1 flex items-center gap-1">
                       <span>📅</span> Due Date
                     </label>
                     <input
@@ -2894,7 +2894,7 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                       value={invoiceForm.dueDate || new Date().toISOString().split('T')[0]}
                       onClick={(e) => e.target.showPicker && e.target.showPicker()}
                       onChange={(e) => setInvoiceForm({ ...invoiceForm, dueDate: e.target.value })}
-                      className="w-full p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none text-slate-800 bg-white font-medium cursor-pointer shadow-sm"
+                      className="w-full p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none text-slate-800 bg-white font-medium cursor-pointer text-xs"
                     />
                   </div>
                 </div>
