@@ -2729,12 +2729,17 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                   />
                 </div>
 
-              {/* Prominent Highlighted Top Section: Invoice Title / Subject */}
-              <div className="bg-[#E94444]/5 border-2 border-[#E94444]/20 p-3.5 rounded-2xl mb-2 shadow-sm">
-                <label className="block text-xs font-black text-[#E94444] uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-[#E94444] inline-block animate-pulse"></span>
-                  Invoice Title / Subject
-                </label>
+              {/* Standalone Top Header Section: Invoice Title / Subject */}
+              <div className="bg-slate-900 text-white p-4 rounded-2xl mb-5 shadow-lg border border-slate-800">
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-xs font-extrabold uppercase tracking-widest text-[#E94444] flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4 text-[#E94444]">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                    </svg>
+                    Invoice Title / Subject
+                  </label>
+                  <span className="text-[11px] font-medium text-slate-400">Title for Dashboard & Line Item</span>
+                </div>
                 <input
                   type="text"
                   value={invoiceForm.title || ''}
@@ -2747,7 +2752,7 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                     }));
                   }}
                   placeholder="e.g. Raudratech August 26-001 or Web Development Services"
-                  className="w-full p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#E94444]/30 focus:border-[#E94444] outline-none text-slate-900 bg-white font-bold text-base shadow-inner placeholder:font-normal placeholder:text-slate-400"
+                  className="w-full p-3 border border-slate-700 rounded-xl focus:ring-2 focus:ring-[#E94444]/40 focus:border-[#E94444] outline-none text-slate-100 bg-slate-800/90 font-bold text-base shadow-inner placeholder:font-normal placeholder:text-slate-500"
                 />
               </div>
 
