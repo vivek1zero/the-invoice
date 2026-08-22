@@ -2935,24 +2935,43 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                           <label className="block text-xxs font-bold text-slate-600 uppercase mb-1">
                             HSN/SAC
                           </label>
-                          <select
-                            value={item.hsnSac || ""}
-                            onChange={(e) => handleLineItemChange(index, 'hsnSac', e.target.value)}
-                            className="w-full p-2 border border-slate-300 rounded-lg text-xs bg-white text-slate-800 font-medium focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none"
-                          >
-                            <option value="">-- Choose Preset ({servicePresetsList.map(p => p.hsnSac).join(', ')}) --</option>
-                            {servicePresetsList.map((preset, pIdx) => {
-                              const labelText = preset.label || (preset.title ? `${preset.hsnSac} - ${preset.title}` : preset.hsnSac);
-                              return (
-                                <option key={pIdx} value={labelText}>
-                                  {labelText}
-                                </option>
-                              );
-                            })}
-                            {item.hsnSac && !servicePresetsList.some(p => (p.label === item.hsnSac || `${p.hsnSac} - ${p.title}` === item.hsnSac || p.hsnSac === item.hsnSac)) && (
-                              <option value={item.hsnSac}>{item.hsnSac}</option>
-                            )}
-                          </select>
+                          {(() => {
+                            const rawHsn = (item.hsnSac || '').toString().trim();
+                            const matchingPreset = servicePresetsList.find(p => 
+                              p.hsnSac === rawHsn || 
+                              p.label === rawHsn || 
+                              `${p.hsnSac} - ${p.title}` === rawHsn ||
+                              (rawHsn && p.hsnSac && (rawHsn.startsWith(p.hsnSac) || p.hsnSac.startsWith(rawHsn)))
+                            );
+                            const selectedVal = matchingPreset 
+                              ? (matchingPreset.label || `${matchingPreset.hsnSac} - ${matchingPreset.title}`) 
+                              : rawHsn;
+
+                            return (
+                              <select
+                                value={selectedVal}
+                                onChange={(e) => handleLineItemChange(index, 'hsnSac', e.target.value)}
+                                className="w-full p-2 border border-slate-300 rounded-lg text-xs bg-white text-slate-800 font-medium focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none"
+                              >
+                                <option value="">-- Choose Preset ({servicePresetsList.map(p => p.hsnSac).join(', ')}) --</option>
+                                {servicePresetsList.map((preset, pIdx) => {
+                                  const labelText = preset.label || (preset.title ? `${preset.hsnSac} - ${preset.title}` : preset.hsnSac);
+                                  return (
+                                    <option key={pIdx} value={labelText}>
+                                      {labelText}
+                                    </option>
+                                  );
+                                })}
+                                {selectedVal && !servicePresetsList.some(p => (
+                                  p.label === selectedVal || 
+                                  `${p.hsnSac} - ${p.title}` === selectedVal || 
+                                  p.hsnSac === selectedVal
+                                )) && (
+                                  <option value={selectedVal}>{selectedVal}</option>
+                                )}
+                              </select>
+                            );
+                          })()}
                         </div>
 
                         {/* Description Input (Right 6 Columns - 50%) */}
