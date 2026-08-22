@@ -307,7 +307,7 @@ async function main() {
       const dueDate = invData.dueDate || new Date(invData.createdAt.getTime() + 30 * 86400000);
       const hsnMatch = invData.hsnSac ? invData.hsnSac.match(/^(\d{4,8})/) : null;
       const hsnSac = hsnMatch ? hsnMatch[1] : '998314';
-      const itemTitle = invData.hsnSac || invData.title || 'Services';
+      const itemTitle = decodeHtmlEntities(invData.title || invData.hsnSac || 'Services');
 
       await prisma.invoice.create({
         data: {
