@@ -344,16 +344,9 @@ export default async function PrintInvoicePage({ params, searchParams }) {
                       <td className="py-4 px-2 text-center font-medium">{idx + 1}</td>
                       <td className="py-4 px-2 text-slate-600">{item.hsnSac || '998314'}</td>
                       <td className="py-4 px-2">
-                        {item.title && (
-                          <div className="font-semibold text-slate-900 text-[12.5px] mb-1">
-                            {decodeHtmlEntities(item.title)}
-                          </div>
-                        )}
-                        {item.description && (
-                          <div className="text-slate-800 font-medium leading-relaxed text-[12px] whitespace-pre-line">
-                            {decodeHtmlEntities(item.description)}
-                          </div>
-                        )}
+                        <div className="text-slate-800 font-medium leading-relaxed text-[12px] whitespace-pre-line">
+                          {decodeHtmlEntities(item.description || item.title || 'Services')}
+                        </div>
                       </td>
                       <td className="py-4 px-2 text-center">{item.unit || '1'}</td>
                       <td className="py-4 px-2 text-center">{item.quantity}</td>
