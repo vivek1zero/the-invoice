@@ -2928,22 +2928,8 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                         &times;
                       </button>
 
-                      {/* Row 1: HSN/SAC on left + Choose Preset on right side */}
+                      {/* Row 1: Choose Preset on left + HSN/SAC on right side */}
                       <div className="grid grid-cols-12 gap-3 pr-6">
-                        <div className="col-span-12 sm:col-span-6">
-                          <label className="block text-xxs font-bold text-slate-600 uppercase mb-1">
-                            HSN/SAC
-                          </label>
-                          <input
-                            type="text"
-                            required
-                            placeholder="e.g. 998314 - Web Development"
-                            value={item.hsnSac || ''}
-                            onChange={(e) => handleLineItemChange(index, 'hsnSac', e.target.value)}
-                            className="w-full p-2 border border-slate-300 rounded-lg text-xs bg-white font-medium text-slate-800 focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none"
-                          />
-                        </div>
-
                         <div className="col-span-12 sm:col-span-6">
                           <label className="block text-xxs font-bold text-slate-600 uppercase mb-1 flex items-center gap-1 text-[#E94444]">
                             <span>⚡</span> Choose Preset
@@ -2995,6 +2981,20 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                               </select>
                             );
                           })()}
+                        </div>
+
+                        <div className="col-span-12 sm:col-span-6">
+                          <label className="block text-xxs font-bold text-slate-600 uppercase mb-1">
+                            HSN/SAC
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            placeholder="e.g. 998314 - Web Development"
+                            value={item.hsnSac || ''}
+                            onChange={(e) => handleLineItemChange(index, 'hsnSac', e.target.value)}
+                            className="w-full p-2 border border-slate-300 rounded-lg text-xs bg-white font-medium text-slate-800 focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none"
+                          />
                         </div>
                       </div>
 
