@@ -303,7 +303,7 @@ export default async function PrintInvoicePage({ params, searchParams }) {
         </div>
 
         {/* Place of Supply & 3-Block Payment Grid */}
-        <div className="flex justify-between items-start mb-[20px] relative z-10">
+        <div className="flex justify-between items-end mb-[15px] relative z-10">
           <div className="w-[41%] text-[#777777]">
             <span className="font-bold text-[13.33px] uppercase block mb-1">PLACE OF SUPPLY</span>
             <span className="font-medium text-[13.33px] uppercase block">{client.state || 'GUJARAT'}</span>
@@ -312,17 +312,17 @@ export default async function PrintInvoicePage({ params, searchParams }) {
             <table className="w-full border-collapse">
               <tbody>
                 <tr>
-                  <td className="text-left w-1/3 align-middle" style={{ backgroundColor: '#2d424d', color: '#fff', height: '80px', padding: '15px 12px' }}>
+                  <td className="text-center w-1/3 align-middle" style={{ backgroundColor: '#2d424d', color: '#fff', height: '80px', padding: '15px 12px' }}>
                     <div className="text-[13.33px] font-bold">DATE</div>
                     <div className="text-[16px] font-medium mt-1">{formatDate(invoice.createdAt)}</div>
                   </td>
-                  <td className="text-left w-1/3 align-middle" style={{ backgroundColor: themeBgHex, color: '#fff', height: '80px', padding: '15px 12px' }}>
+                  <td className="text-center w-1/3 align-middle" style={{ backgroundColor: themeBgHex, color: '#fff', height: '80px', padding: '15px 12px' }}>
                     <div className="text-[13.33px] font-bold">PLEASE PAY</div>
                     <div className="text-[16px] font-bold mt-1">
-                      {currSym} {invoice.totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                      {currSym === '₹' ? 'INR' : currSym} {invoice.totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                     </div>
                   </td>
-                  <td className="text-left w-1/3 align-middle" style={{ backgroundColor: '#2d424d', color: '#fff', height: '80px', padding: '15px 12px' }}>
+                  <td className="text-center w-1/3 align-middle" style={{ backgroundColor: '#2d424d', color: '#fff', height: '80px', padding: '15px 12px' }}>
                     <div className="text-[13.33px] font-bold">DUE DATE</div>
                     <div className="text-[16px] font-medium mt-1">{formatDate(invoice.dueDate || invoice.createdAt)}</div>
                   </td>
@@ -333,38 +333,38 @@ export default async function PrintInvoicePage({ params, searchParams }) {
         </div>
 
         {/* Line Items Table (Height 340px area roughly) */}
-        <div className="flex-1 flex flex-col mb-[20px] relative z-10" style={{ minHeight: '340px' }}>
+        <div className="flex-1 flex flex-col mb-[15px] relative z-10" style={{ minHeight: '320px' }}>
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr style={{ backgroundColor: '#2e4151', color: 'white' }}>
-                <th className="py-2.5 px-2 text-center font-bold text-[13.33px] w-8">NO</th>
-                <th className="py-2.5 px-2 font-bold text-[13.33px] w-20">HSN/SAC</th>
-                <th className="py-2.5 px-2 font-bold text-[13.33px]">DESCRIPTION</th>
+              <tr className="border-t border-b border-[#2d424d] text-[#777777]">
+                <th className="py-2.5 px-2 text-left font-bold text-[13.33px] w-8">NO</th>
+                <th className="py-2.5 px-2 text-left font-bold text-[13.33px] w-20">HSN/SAC</th>
+                <th className="py-2.5 px-2 text-left font-bold text-[13.33px]">DESCRIPTION</th>
                 <th className="py-2.5 px-2 text-center font-bold text-[13.33px] w-12">UNIT</th>
                 <th className="py-2.5 px-2 text-center font-bold text-[13.33px] w-16">HRS/QTY</th>
                 <th className="py-2.5 px-2 text-right font-bold text-[13.33px] w-20">RATE</th>
-                <th className="py-2.5 px-2 text-right font-bold text-[13.33px] w-16">TAX</th>
+                <th className="py-2.5 px-2 text-center font-bold text-[13.33px] w-16">TAX</th>
                 <th className="py-2.5 px-2 text-right font-bold text-[13.33px] w-24">AMOUNT</th>
               </tr>
             </thead>
             <tbody className="text-[#777777] text-[13.33px]">
               {lineItems.map((item, idx) => (
                 <tr key={item.id} className="align-top border-b border-transparent">
-                  <td className="pt-3 px-2 text-center">{idx + 1}</td>
-                  <td className="pt-3 px-2">{item.hsnSac || '998314'}</td>
+                  <td className="pt-3 px-2 text-left">{idx + 1}</td>
+                  <td className="pt-3 px-2 text-left">{item.hsnSac || '998314'}</td>
                   <td className="pt-3 px-2">
-                    <div className="whitespace-pre-line">{decodeHtmlEntities(item.description || item.title || 'Services')}</div>
+                    <div className="whitespace-pre-line leading-relaxed">{decodeHtmlEntities(item.description || item.title || 'Services')}</div>
                   </td>
-                  <td className="pt-3 px-2 text-center">{item.unit || '1'}</td>
+                  <td className="pt-3 px-2 text-center">{item.unit || ''}</td>
                   <td className="pt-3 px-2 text-center">{item.quantity}</td>
                   <td className="pt-3 px-2 text-right">
-                    {isExport ? '$ ' : ''}{item.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                    {item.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                   </td>
-                  <td className="pt-3 px-2 text-right whitespace-nowrap">
-                    {item.taxable ? `${item.taxRate}% GST` : '0%'}
+                  <td className="pt-3 px-2 text-center whitespace-nowrap">
+                    {item.taxable ? `NA` : 'NA'} {/* Screenshot shows 'NA' for TAX column */}
                   </td>
                   <td className="pt-3 px-2 text-right font-medium">
-                    {isExport ? '$ ' : ''}{(item.quantity * item.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                    {(item.quantity * item.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                   </td>
                 </tr>
               ))}
@@ -374,7 +374,7 @@ export default async function PrintInvoicePage({ params, searchParams }) {
         </div>
 
         {/* Totals & Bank Details Grid (Legacy reversed floats behavior) */}
-        <div className="flex justify-between items-start pt-2 relative z-10 text-[13.33px] text-[#777777]">
+        <div className="flex justify-between items-start pt-3 relative z-10 text-[13.33px] text-[#777777]">
           {/* Bank Details (Visually on Left in CSS) */}
           <div className="w-1/2 pr-6">
             <div className="mb-4">
@@ -396,7 +396,7 @@ export default async function PrintInvoicePage({ params, searchParams }) {
 
           {/* Totals & Signature (Visually on Right in CSS) */}
           <div className="w-1/2 flex flex-col items-end text-right">
-            <div className="w-full max-w-[320px] mb-4">
+            <div className="w-full max-w-[340px] mb-4">
               <div className="flex justify-between py-1">
                 <span className="font-bold">SUB TOTAL</span>
                 <span>{invoice.subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
@@ -426,10 +426,10 @@ export default async function PrintInvoicePage({ params, searchParams }) {
                 </div>
               )}
               
-              <div className="mt-2 bg-[#2C3E50] text-white flex justify-between px-4 py-2 font-bold">
-                <span style={{ fontSize: '13.33px' }}>TOTAL DUE</span>
+              <div className="mt-3 bg-[#2C3E50] text-white flex justify-between px-4 py-3 font-bold items-center">
+                <span style={{ fontSize: '16px' }}>Total Due</span>
                 <span style={{ fontSize: '20px' }}>
-                  {currSym} {invoice.totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                  {currSym === '₹' ? 'INR' : currSym} {invoice.totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                 </span>
               </div>
             </div>
