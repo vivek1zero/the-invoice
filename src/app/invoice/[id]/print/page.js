@@ -231,7 +231,7 @@ export default async function PrintInvoicePage({ params, searchParams }) {
           letterSpacing: 'normal',
           width: '794px',
           minHeight: '1123px',
-          padding: '6mm 8mm 10mm 14mm',
+          padding: '0mm 8mm 10mm 14mm',
           boxSizing: 'border-box'
         }}
         className="bg-[#ffffff] text-[#1e293b] mx-auto relative overflow-hidden flex flex-col justify-between"
@@ -245,8 +245,8 @@ export default async function PrintInvoicePage({ params, searchParams }) {
           </div>
         )}
 
-        {/* PDF Header -> ORIGINAL FOR RECIPIENT */}
-        <div className="flex justify-end mb-2 relative z-20">
+        {/* PDF Header -> ORIGINAL FOR RECIPIENT - Touches top */}
+        <div className="flex justify-end mb-2 relative z-20 pt-0">
           <div className="flex flex-col items-center">
             {!isStationery ? (
               <div className="bg-[#E94444] text-[#ffffff] px-3 py-1.5 text-[12px] font-bold text-center leading-none flex items-center justify-center shadow-none">
@@ -307,9 +307,9 @@ export default async function PrintInvoicePage({ params, searchParams }) {
           })()}
         </div>
 
-        {/* Place of Supply & 3-Block Payment Grid - Sits directly flush on the table */}
-        <div className="flex justify-between items-end mb-0 relative z-10">
-          <div className="w-[38%] text-[#777777] pb-2">
+        {/* Place of Supply & 3-Block Payment Grid - Top-aligned and sits directly flush on the table */}
+        <div className="flex justify-between items-start mb-0 relative z-10">
+          <div className="w-[38%] text-[#777777] pt-1">
             <span className="font-bold text-[13.33px] uppercase block mb-0.5">PLACE OF SUPPLY</span>
             <span className="font-normal text-[13.33px] uppercase block">{client.state || 'GUJARAT'}</span>
           </div>
