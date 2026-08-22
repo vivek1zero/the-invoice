@@ -129,7 +129,19 @@ export default function PrintToolbar({ isStationery, pdfTitle }) {
           </svg>
         </button>
 
-        {/* Print / Save as PDF */}
+        {/* Direct Download PDF Button */}
+        <button
+          onClick={() => window.print()}
+          className="px-4 py-1.5 bg-[#059669] hover:bg-[#047857] text-white text-xs font-bold rounded-lg flex items-center gap-1.5 transition-colors shadow-md"
+          title="Save / Download PDF file directly to your system"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3.5 h-3.5">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+          </svg>
+          Download PDF
+        </button>
+
+        {/* Print PDF */}
         <button
           onClick={() => window.print()}
           className="px-4 py-1.5 bg-[#E94444] hover:bg-[#d63a3a] text-white text-xs font-bold rounded-lg flex items-center gap-1.5 transition-colors shadow-md"
@@ -137,7 +149,7 @@ export default function PrintToolbar({ isStationery, pdfTitle }) {
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3.5 h-3.5">
             <path strokeLinecap="round" strokeLinejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0 1 10.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0a2.25 2.25 0 0 1-2.25 2.25H8.59A2.25 2.25 0 0 1 6.34 18m11.318-4.085c.675-.101 1.258-.456 1.635-1.045A5.633 5.633 0 0 0 19.5 9.75V9A6 6 0 0 0 7.5 9v.75c0 1.218-.386 2.372-1.045 3.42-.377.589-.96 1.044-1.635 1.045m14.496-4.085a12.044 12.044 0 0 1-14.496 0M9 7.5h6" />
           </svg>
-          Print / Save as PDF
+          Print PDF
         </button>
 
         {/* Close tab */}

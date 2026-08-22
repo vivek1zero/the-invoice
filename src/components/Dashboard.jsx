@@ -2729,24 +2729,29 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                   />
                 </div>
 
-                <div className="sm:col-span-2">
-                  <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Invoice Title / Subject</label>
-                  <input
-                    type="text"
-                    value={invoiceForm.title || ''}
-                    onChange={(e) => {
-                      const newTitle = e.target.value;
-                      setInvoiceForm(prev => ({
-                        ...prev,
-                        title: newTitle,
-                        lineItems: prev.lineItems.map((item, idx) => idx === 0 ? { ...item, title: newTitle } : item)
-                      }));
-                    }}
-                    placeholder="e.g. Raudratech August 26-001 or Web Development Services"
-                    className="w-full p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none text-slate-800 bg-white font-medium text-sm"
-                  />
-                </div>
+              {/* Prominent Highlighted Top Section: Invoice Title / Subject */}
+              <div className="bg-[#E94444]/5 border-2 border-[#E94444]/20 p-3.5 rounded-2xl mb-2 shadow-sm">
+                <label className="block text-xs font-black text-[#E94444] uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-[#E94444] inline-block animate-pulse"></span>
+                  Invoice Title / Subject
+                </label>
+                <input
+                  type="text"
+                  value={invoiceForm.title || ''}
+                  onChange={(e) => {
+                    const newTitle = e.target.value;
+                    setInvoiceForm(prev => ({
+                      ...prev,
+                      title: newTitle,
+                      lineItems: prev.lineItems.map((item, idx) => idx === 0 ? { ...item, title: newTitle } : item)
+                    }));
+                  }}
+                  placeholder="e.g. Raudratech August 26-001 or Web Development Services"
+                  className="w-full p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#E94444]/30 focus:border-[#E94444] outline-none text-slate-900 bg-white font-bold text-base shadow-inner placeholder:font-normal placeholder:text-slate-400"
+                />
+              </div>
 
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <ClientSearchCombobox
                   clients={clients}
                   selectedClientId={invoiceForm.clientId}
@@ -2754,6 +2759,17 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                     handleClientSelectInInvoice(clientId);
                   }}
                 />
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Order / Serial ID (PDF header)</label>
+                  <input
+                    type="text"
+                    value={invoiceForm.orderNumber}
+                    onChange={(e) => setInvoiceForm({ ...invoiceForm, orderNumber: e.target.value })}
+                    placeholder="e.g. D2026270616"
+                    className="w-full p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none text-slate-800 font-mono bg-white"
+                  />
+                </div>
 
                 <div>
                   <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Supply Region</label>
@@ -2862,27 +2878,35 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                   </select>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Invoice Date (Start Date)</label>
-                  <input
-                    type="date"
-                    value={invoiceForm.createdAt || ''}
-                    onClick={(e) => e.target.showPicker && e.target.showPicker()}
-                    onChange={(e) => setInvoiceForm({ ...invoiceForm, createdAt: e.target.value })}
-                    className="w-full p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none text-slate-800 bg-white font-medium cursor-pointer"
-                  />
-                </div>
+                {/* Same Row 2-Column Grid for Start Date and Due Date */}
+                <div className="sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 uppercase mb-1 flex items-center gap-1">
+                      <span>📅</span> Start Date
+                    </label>
+                    <input
+                      type="date"
+                      value={invoiceForm.createdAt || ''}
+                      onClick={(e) => e.target.showPicker && e.target.showPicker()}
+                      onChange={(e) => setInvoiceForm({ ...invoiceForm, createdAt: e.target.value })}
+                      className="w-full p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none text-slate-800 bg-white font-medium cursor-pointer shadow-sm"
+                    />
+                  </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Due Date</label>
-                  <input
-                    type="date"
-                    value={invoiceForm.dueDate || ''}
-                    onClick={(e) => e.target.showPicker && e.target.showPicker()}
-                    onChange={(e) => setInvoiceForm({ ...invoiceForm, dueDate: e.target.value })}
-                    className="w-full p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none text-slate-800 bg-white font-medium cursor-pointer"
-                  />
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 uppercase mb-1 flex items-center gap-1">
+                      <span>📅</span> Due Date
+                    </label>
+                    <input
+                      type="date"
+                      value={invoiceForm.dueDate || ''}
+                      onClick={(e) => e.target.showPicker && e.target.showPicker()}
+                      onChange={(e) => setInvoiceForm({ ...invoiceForm, dueDate: e.target.value })}
+                      className="w-full p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none text-slate-800 bg-white font-medium cursor-pointer shadow-sm"
+                    />
+                  </div>
                 </div>
+              </div>
               </div>
 
               {/* Line Items builder */}
