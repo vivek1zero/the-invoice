@@ -2928,12 +2928,25 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                         &times;
                       </button>
 
-                      {/* 2-Column 50/50 Row: HSN/SAC with Presets (50%) + Description (50%) */}
-                      <div className="grid grid-cols-12 gap-3 mb-2">
-                        {/* HSN/SAC Dropdown Selector (Left 6 Columns - 50%) */}
+                      {/* Row 1: HSN/SAC on left + Choose Preset on right side */}
+                      <div className="grid grid-cols-12 gap-3 pr-6">
                         <div className="col-span-12 sm:col-span-6">
                           <label className="block text-xxs font-bold text-slate-600 uppercase mb-1">
                             HSN/SAC
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            placeholder="e.g. 998314 - Web Development"
+                            value={item.hsnSac || ''}
+                            onChange={(e) => handleLineItemChange(index, 'hsnSac', e.target.value)}
+                            className="w-full p-2 border border-slate-300 rounded-lg text-xs bg-white font-medium text-slate-800 focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none"
+                          />
+                        </div>
+
+                        <div className="col-span-12 sm:col-span-6">
+                          <label className="block text-xxs font-bold text-slate-600 uppercase mb-1 flex items-center gap-1 text-[#E94444]">
+                            <span>⚡</span> Choose Preset
                           </label>
                           {(() => {
                             const rawHsn = (item.hsnSac || '').toString().trim();
@@ -2950,7 +2963,17 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                             return (
                               <select
                                 value={selectedVal}
-                                onChange={(e) => handleLineItemChange(index, 'hsnSac', e.target.value)}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  if (!val) return;
+                                  const selected = servicePresetsList.find(p => p.label === val || p.hsnSac === val || `${p.hsnSac} - ${p.title}` === val);
+                                  if (selected) {
+                                    const fullPresetText = selected.label || (selected.title ? `${selected.hsnSac} - ${selected.title}` : selected.hsnSac);
+                                    handleLineItemChange(index, 'hsnSac', fullPresetText);
+                                  } else {
+                                    handleLineItemChange(index, 'hsnSac', val);
+                                  }
+                                }}
                                 className="w-full p-2 border border-slate-300 rounded-lg text-xs bg-white text-slate-800 font-medium focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none"
                               >
                                 <option value="">-- Choose Preset ({servicePresetsList.map(p => p.hsnSac).join(', ')}) --</option>
@@ -2973,24 +2996,25 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                             );
                           })()}
                         </div>
-
-                        {/* Description Input (Right 6 Columns - 50%) */}
-                        <div className="col-span-12 sm:col-span-6">
-                          <label className="block text-xxs font-bold text-slate-600 uppercase mb-1">
-                            Description
-                          </label>
-                          <textarea
-                            rows="2"
-                            placeholder="Detailed description of the services..."
-                            value={item.description || ''}
-                            onChange={(e) => handleLineItemChange(index, 'description', e.target.value)}
-                            className="w-full p-2 border border-slate-300 rounded-lg text-xs bg-white text-slate-800 focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none resize-none"
-                          />
-                        </div>
                       </div>
 
-                      <div className="grid grid-cols-5 gap-3">
-                        <div className="col-span-1">
+                      {/* Row 2: Description below taking full width */}
+                      <div>
+                        <label className="block text-xxs font-bold text-slate-600 uppercase mb-1">
+                          Description
+                        </label>
+                        <textarea
+                          rows="2"
+                          placeholder="Detailed description of the services..."
+                          value={item.description || ''}
+                          onChange={(e) => handleLineItemChange(index, 'description', e.target.value)}
+                          className="w-full p-2.5 border border-slate-300 rounded-lg text-xs bg-white text-slate-800 focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none resize-none"
+                        />
+                      </div>
+
+                      {/* Row 3: Math and Subtotal right-aligned */}
+                      <div className="grid grid-cols-12 gap-3 items-end">
+                        <div className="col-span-3 sm:col-span-3">
                           <label className="block text-xxs font-bold text-slate-400 uppercase mb-0.5">Qty / Hrs</label>
                           <input
                             type="number"
@@ -2999,11 +3023,11 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                             step="any"
                             value={item.quantity}
                             onChange={(e) => handleLineItemChange(index, 'quantity', parseFloat(e.target.value) || 0)}
-                            className="w-full p-2 border border-slate-300 rounded-lg text-sm bg-white text-center"
+                            className="w-full p-2 border border-slate-300 rounded-lg text-sm bg-white text-center font-medium"
                           />
                         </div>
 
-                        <div className="col-span-1">
+                        <div className="col-span-3 sm:col-span-3">
                           <label className="block text-xxs font-bold text-slate-400 uppercase mb-0.5">Rate ({invoiceForm.currencySymbol})</label>
                           <input
                             type="number"
@@ -3012,11 +3036,11 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                             step="any"
                             value={item.amount}
                             onChange={(e) => handleLineItemChange(index, 'amount', parseFloat(e.target.value) || 0)}
-                            className="w-full p-2 border border-slate-300 rounded-lg text-sm bg-white text-right"
+                            className="w-full p-2 border border-slate-300 rounded-lg text-sm bg-white text-right font-medium"
                           />
                         </div>
 
-                        <div className="col-span-1">
+                        <div className="col-span-3 sm:col-span-3">
                           <label className="block text-xxs font-bold text-slate-400 uppercase mb-0.5">Adjust (%)</label>
                           <input
                             type="number"
@@ -3026,13 +3050,13 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                             step="any"
                             value={item.adjustPercent}
                             onChange={(e) => handleLineItemChange(index, 'adjustPercent', parseFloat(e.target.value) || 0)}
-                            className="w-full p-2 border border-slate-300 rounded-lg text-sm bg-white text-center"
+                            className="w-full p-2 border border-slate-300 rounded-lg text-sm bg-white text-center font-medium"
                           />
                         </div>
 
-                        <div className="col-span-1 flex flex-col justify-end text-right">
-                          <span className="text-xxs font-bold text-slate-400 uppercase">Subtotal</span>
-                          <span className="text-sm font-semibold text-slate-700 py-1.5">
+                        <div className="col-span-3 sm:col-span-3 flex flex-col justify-end items-end text-right">
+                          <span className="text-xxs font-bold text-slate-500 uppercase tracking-wider">Subtotal</span>
+                          <span className="text-sm font-bold text-slate-800 py-1.5 font-mono">
                             {invoiceForm.currencySymbol}{((item.quantity || 0) * (item.amount || 0) * (1 - (item.adjustPercent || 0) / 100)).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                           </span>
                         </div>
