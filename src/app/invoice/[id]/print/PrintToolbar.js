@@ -36,41 +36,74 @@ export default function PrintToolbar({ isStationery, pdfTitle }) {
   // Direct 1-click PDF download to computer using bundled libraries
   const handleDownloadPdf = async () => {
     setIsDownloading(true);
+    const element = document.getElementById('invoice-pdf-container');
+    if (!element) {
+      window.print();
+      setIsDownloading(false);
+      return;
+    }
+
+    // Save previous transform state so html2canvas renders exact full dimensions
+    const prevTransform = element.style.transform;
+    element.style.transform = 'none';
+
     try {
-      const element = document.getElementById('invoice-pdf-container');
-      if (!element) {
-        window.print();
-        return;
+      let downloaded = false;
+
+      // 1. Try bundled html2pdf.js
+      try {
+        const html2pdfModule = await import('html2pdf.js');
+        const html2pdf = html2pdfModule.default || html2pdfModule;
+        if (typeof html2pdf === 'function') {
+          const opt = {
+            margin: 0,
+            filename: `${pdfTitle || 'invoice'}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true, logging: false, backgroundColor: '#ffffff' },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+          };
+          await html2pdf().set(opt).from(element).save();
+          downloaded = true;
+        }
+      } catch (err1) {
+        console.warn('html2pdf approach failed, trying html2canvas + jspdf:', err1);
       }
 
-      const html2canvasModule = await import('html2canvas');
-      const html2canvas = html2canvasModule.default || html2canvasModule;
-      const { jsPDF } = await import('jspdf');
+      // 2. Direct html2canvas + jsPDF fallback
+      if (!downloaded) {
+        const html2canvasModule = await import('html2canvas');
+        const html2canvas = html2canvasModule.default || html2canvasModule;
+        const jspdfModule = await import('jspdf');
+        const jsPDF = jspdfModule.jsPDF || jspdfModule.default || jspdfModule;
 
-      // Render the invoice element at high resolution
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-        backgroundColor: '#ffffff'
-      });
+        const canvas = await html2canvas(element, {
+          scale: 2,
+          useCORS: true,
+          logging: false,
+          backgroundColor: '#ffffff'
+        });
 
-      const imgData = canvas.toDataURL('image/jpeg', 0.98);
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4'
-      });
+        const imgData = canvas.toDataURL('image/jpeg', 0.98);
+        const pdf = new jsPDF({
+          orientation: 'portrait',
+          unit: 'mm',
+          format: 'a4'
+        });
 
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = (canvas.height * pageWidth) / canvas.width;
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const pageHeight = (canvas.height * pageWidth) / canvas.width;
 
-      pdf.addImage(imgData, 'JPEG', 0, 0, pageWidth, pageHeight);
-      pdf.save(`${pdfTitle || 'invoice'}.pdf`);
+        pdf.addImage(imgData, 'JPEG', 0, 0, pageWidth, pageHeight);
+        pdf.save(`${pdfTitle || 'invoice'}.pdf`);
+      }
     } catch (err) {
-      console.error('Direct PDF download error:', err);
+      console.error('Direct PDF download error, falling back to browser print:', err);
       window.print();
     } finally {
+      // Restore original zoom transform
+      if (element) {
+        element.style.transform = prevTransform;
+      }
       setIsDownloading(false);
     }
   };
