@@ -2695,6 +2695,7 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
               >
                 &times;
               </button>
+            </div>
 
             <form onSubmit={handleInvoiceSubmit} className="overflow-y-auto pr-1 flex-1 space-y-6 text-sm">
               {invoiceFormError && (
