@@ -227,52 +227,58 @@ export default async function PrintInvoicePage({ params, searchParams }) {
       <div 
         id="invoice-pdf-container"
         style={{ fontFamily: "'Montserrat', sans-serif", letterSpacing: 'normal' }}
-        className="bg-white text-slate-800 pt-14 pb-6 px-8 max-w-[850px] mx-auto relative text-sm overflow-hidden flex flex-col min-h-[1050px]"
+        className="bg-white text-slate-800 pt-[20px] pb-6 px-8 max-w-[850px] mx-auto relative overflow-hidden flex flex-col min-h-[1050px]"
       >
-        {/* Dynamic Printing Script */}
         <TriggerPrint />
 
-        {/* Central Background Watermark (zero-symbol) - ONLY shown on Full Digital PDF (isStationery = false) */}
+        {/* Central Background Watermark (zero-symbol) - ONLY shown on Full Digital PDF */}
         {!isStationery && (
           <div className="absolute inset-0 pointer-events-none flex items-center justify-center z-0 opacity-[0.05]">
             <img src="/zero-symbol-1.svg" alt="Watermark" className="w-[480px] h-[480px] object-contain" />
           </div>
         )}
 
-        {/* Top Header: Red www.zerodesigns.in box touching top right edge of PDF */}
-        {!isStationery ? (
-          <div className="absolute top-0 right-[24px] z-20 flex flex-col items-center">
-            <div className="bg-[#E94444] text-white px-4 py-1.5 text-[13.5px] font-bold rounded-none whitespace-nowrap text-center">
-              www.zerodesigns.in
+        {/* PDF Header -> ORIGINAL FOR RECIPIENT */}
+        <div className="flex justify-end mb-2 relative z-20">
+          {!isStationery ? (
+            <div className="flex flex-col items-center">
+              <div className="bg-[#E94444] text-white px-4 py-1.5 text-[13.5px] font-bold text-center">
+                www.zerodesigns.in
+              </div>
+              <div className="text-[13px] text-[#777777] font-normal uppercase text-center mt-1">
+                ORIGINAL FOR RECIPIENT
+              </div>
             </div>
-            <div className="text-[13px] text-[#777777] font-normal uppercase text-center pt-[5px] mt-0.5">
+          ) : (
+            <div className="text-[13px] text-[#777777] font-normal uppercase text-center mt-1">
               ORIGINAL FOR RECIPIENT
             </div>
-          </div>
-        ) : (
-          <div className="absolute top-4 right-[24px] z-20 text-[13px] text-[#777777] font-normal uppercase text-center pt-[5px]">
-            ORIGINAL FOR RECIPIENT
-          </div>
-        )}
+          )}
+        </div>
 
-        {/* Main Content Area */}
-        <div className="relative z-10 pt-2 flex-1 flex flex-col">
-
-          {/* Red/Green Tax Invoice Title | Order Number */}
-          <div className="mb-6 flex justify-between items-center pr-48">
-            <h1 className="text-[20px] font-bold tracking-tight" style={{ color: themeTextHex }}>
-              {isProforma ? 'Proforma Invoice' : 'Tax Invoice'} | {invoice.orderNumber || invoice.invoiceNumber}
-            </h1>
+        {/* Invoice Title & Export Details */}
+        <div className="flex justify-between items-start mb-[20px] relative z-10">
+          <div className="w-1/2">
+            <h2 className="text-[20px] font-bold" style={{ color: themeTextHex, paddingTop: '18px' }}>
+              {isProforma ? 'Proforma Invoice' : (isExport ? 'Export Invoice' : 'Tax Invoice')} | {invoice.orderNumber || invoice.invoiceNumber}
+            </h2>
+          </div>
+          <div className="w-1/2 text-[#777777]" style={{ height: '50px' }}>
             {isExport && (
-              <div className="text-right">
-                <span className="text-[12px] font-bold text-slate-700 uppercase block">
-                  LUT ARN No.: {invoice.lutArn || settings.business_lut_arn} ({lutValidity})
-                </span>
-              </div>
+              <>
+                <div className="font-bold text-[13.33px]">LUT ARN No.: {invoice.lutArn || settings.business_lut_arn}</div>
+                <div className="text-[12px] leading-snug mt-1">
+                  Supply Ment for Export Under Bond of Letter of Understading<br/>
+                  without Payment of Integration Tax (IGST)
+                </div>
+              </>
             )}
           </div>
+        </div>
 
-          {/* Invoice To */}
+        {/* Sliced Address (INVOICE TO) */}
+        <div className="mb-[20px] text-[#777777] relative z-10">
+          <div className="font-bold text-[13.33px] uppercase mb-1">INVOICE TO</div>
           {(() => {
             const first = client?.firstName ? client.firstName.trim() : '';
             const last = client?.lastName ? client.lastName.trim() : '';
@@ -280,224 +286,186 @@ export default async function PrintInvoicePage({ params, searchParams }) {
             const contactName = fullName || client?.contactPerson || '';
 
             return (
-              <div className="mb-6 font-medium text-[#777777]">
-                <div className="text-[13.33px] uppercase font-bold mb-0.5" style={{ color: '#777777' }}>INVOICE TO</div>
+              <div className="sliced-address">
                 {contactName && (
-                  <div className="text-slate-800 text-[13px] font-medium mb-1">{contactName}</div>
+                  <div className="text-slate-800 text-[13.33px] font-medium">{contactName}</div>
                 )}
-                <div className="font-bold text-[13.33px]" style={{ color: '#777777' }}>{client?.name || 'Client Name'}</div>
-                <div className="text-[#777777] leading-normal text-[13px] mt-0.5 whitespace-pre-line max-w-[500px]">
+                <div className="font-bold text-[13.33px]">{client?.name || 'Client Name'}</div>
+                <div className="text-[13.33px] mt-0.5 whitespace-pre-line">
                   {client?.address || 'Address not specified'}
                 </div>
-                <div className="text-[#777777] text-[13px] mt-0.5">
+                <div className="text-[13.33px] mt-0.5">
                   State Code: {client?.stateCode || '24'} | GSTIN: {client?.gstin || 'N/A'}
                 </div>
               </div>
             );
           })()}
-
-          {/* Place of Supply & 3-Block Payment Box */}
-          <div className="flex justify-between items-start mb-2">
-            <div className="font-medium pb-2">
-              <div className="text-[#777777] uppercase font-bold text-[13px] mb-0.5">PLACE OF SUPPLY</div>
-              <div className="font-medium text-[#777777] text-[13px] uppercase">{client.state || 'GUJARAT'}</div>
-            </div>
-            <div className="w-full max-w-[440px]">
-              <div className="grid grid-cols-3 text-left overflow-hidden text-[12.5px]">
-                {/* DATE Block */}
-                <div className="bg-[#2C3E50] text-white py-2.5 px-1 font-bold text-left" style={{ padding: '15px 12px' }}>
-                  DATE<br />
-                  <span className="text-white text-[16px] font-medium inline-block mt-0.5" style={{ fontSize: '16px' }}>{formatDate(invoice.createdAt)}</span>
-                </div>
-                {/* PLEASE PAY Block */}
-                <div className="text-white py-2.5 px-1 font-bold text-left flex flex-col justify-center" style={{ backgroundColor: themeBgHex, padding: '15px 12px' }}>
-                  <span className="whitespace-nowrap">PLEASE PAY</span>
-                  <span className="text-white text-[16px] font-bold inline-block mt-0.5 whitespace-nowrap" style={{ fontSize: '16px' }}>
-                    {currSym} {invoice.totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-                  </span>
-                </div>
-                {/* DUE DATE Block */}
-                <div className="bg-[#2C3E50] text-white py-2.5 px-1 font-bold text-left" style={{ padding: '15px 12px' }}>
-                  DUE DATE<br />
-                  <span className="text-white text-[16px] font-medium inline-block mt-0.5" style={{ fontSize: '16px' }}>{formatDate(invoice.dueDate || invoice.createdAt)}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Line Items Table */}
-          <div className="flex-1 flex flex-col mb-0">
-            <div className="flex-1 flex flex-col min-h-[300px]">
-              <table className="w-full text-left border-collapse text-[13px]">
-                <thead>
-                  <tr className="border-b border-t border-[#2d424d] text-[#777777] font-bold uppercase">
-                    <th className="py-3 px-2 text-center w-8">NO</th>
-                    <th className="py-3 px-2 w-20">HSN/SAC</th>
-                    <th className="py-3 px-2">DESCRIPTION</th>
-                    <th className="py-3 px-2 text-center w-12">UNIT</th>
-                    <th className="py-3 px-2 text-center w-16">HRS/QTY</th>
-                    <th className="py-3 px-2 text-right w-20">RATE</th>
-                    <th className="py-3 px-2 text-right w-20 whitespace-nowrap">TAX</th>
-                    <th className="py-3 px-2 text-right w-24">AMOUNT</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-200 text-[#777777] font-medium">
-                  {lineItems.map((item, idx) => (
-                    <tr key={item.id} className="align-top">
-                      <td className="py-3.5 px-2 text-center font-medium">{idx + 1}</td>
-                      <td className="py-3.5 px-2 text-[#777777]">{item.hsnSac || '998314'}</td>
-                      <td className="py-3.5 px-2">
-                        <div className="text-[#777777] font-medium leading-relaxed text-[13px] whitespace-pre-line">
-                          {decodeHtmlEntities(item.description || item.title || 'Services')}
-                        </div>
-                      </td>
-                      <td className="py-3.5 px-2 text-center">{item.unit || '1'}</td>
-                      <td className="py-3.5 px-2 text-center">{item.quantity}</td>
-                      <td className="py-3.5 px-2 text-right">
-                        {isExport ? '$ ' : ''}{item.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-                      </td>
-                      <td className="py-3.5 px-2 text-right whitespace-nowrap">
-                        {item.taxable ? `${item.taxRate}% GST` : '0%'}
-                      </td>
-                      <td className="py-3.5 px-2 text-right font-medium text-[#777777]">
-                        {isExport ? '$ ' : ''}{(item.quantity * item.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            {/* Bottom border line */}
-            <div className="border-b border-[#2d424d] w-full" />
-          </div>
-
-          {/* Financial Summary & Bank Details Grid */}
-          <div className="grid grid-cols-12 gap-6 pt-2">
-            
-            {/* Left Side: Bank Details */}
-            <div className="col-span-7 space-y-3">
-              <div>
-                <div className="font-bold text-slate-700 text-[12px] mb-0.5">Bank Details:</div>
-                <div className="text-[11.5px] text-slate-600 leading-normal whitespace-pre-line font-medium">
-                  {cleanBankDetail}
-                </div>
-              </div>
-
-              <div>
-                <div className="font-bold text-slate-700 text-[12px] mb-0.5">For, US Dollar Remittances - USD</div>
-                <div className="text-[11.5px] text-slate-600 leading-normal font-medium">
-                  Correspondent Bank Details<br />
-                  J P MORGAN CHASE BANK,NEW YORK.<br />
-                  US SWIFT Code: CHASUS33XXX
-                </div>
-              </div>
-            </div>
-
-            {/* Right Side: Totals & Signature */}
-            <div className="col-span-5 flex flex-col justify-between items-end text-right">
-              {/* Subtotals */}
-              <div className="w-full space-y-1 text-[13px] text-[#777777]">
-                <div className="flex justify-between uppercase">
-                  <span className="font-bold">SUB TOTAL</span>
-                  <span className="font-medium text-[#777777]">
-                    {invoice.subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-                  </span>
-                </div>
-
-                {invoice.cgst > 0 && (
-                  <div className="flex justify-between uppercase">
-                    <span className="font-bold">CGST @ 9% on {invoice.subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
-                    <span className="font-medium text-[#777777]">
-                      {invoice.cgst.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-                    </span>
-                  </div>
-                )}
-
-                {invoice.sgst > 0 && (
-                  <div className="flex justify-between uppercase">
-                    <span className="font-bold">SGST @ 9% on {invoice.subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
-                    <span className="font-medium text-[#777777]">
-                      {invoice.sgst.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-                    </span>
-                  </div>
-                )}
-
-                {invoice.igst > 0 && (
-                  <div className="flex justify-between uppercase">
-                    <span className="font-bold">IGST @ 18% on {invoice.subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
-                    <span className="font-medium text-[#777777]">
-                      {invoice.igst.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-                    </span>
-                  </div>
-                )}
-
-                {invoice.discount > 0 && (
-                  <div className="flex justify-between uppercase">
-                    <span className="font-bold">Discount</span>
-                    <span className="font-medium text-red-600">
-                      - {invoice.discount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-                    </span>
-                  </div>
-                )}
-
-                {/* Total Due Row */}
-                <div className="bg-[#2C3E50] text-white flex justify-between items-center px-4 py-2.5 text-sm font-bold rounded-none mt-2">
-                  <span>Total Due</span>
-                  <span style={{ fontSize: '1.2rem' }}>
-                    {currSym} {invoice.totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-                  </span>
-                </div>
-              </div>
-
-              {/* Authorised Signatory Box */}
-              <div className="mt-3 flex flex-col items-end text-right">
-                <span className="text-[11px] text-slate-400 font-semibold uppercase mb-0.5">
-                  THANKYOU.
-                </span>
-                <span className="text-[11.5px] text-slate-600 font-medium mb-0.5">
-                  For Zero Designs Private Limited
-                </span>
-                
-                {/* Scanned Signature (Hidden when isStationery is true) */}
-                <div className="h-9 my-0.5 relative w-32 flex items-center justify-end">
-                  {!isStationery ? (
-                    <img src="/signature.svg" alt="Authorised Signature" className="h-9 w-auto object-contain" />
-                  ) : (
-                    <div className="h-9 w-full" />
-                  )}
-                </div>
-                
-                <span className="text-[11px] text-slate-500 pt-0.5 w-32 text-center font-medium">
-                  Authorised Signatory
-                </span>
-              </div>
-
-            </div>
-          </div>
-
         </div>
 
-        {/* Footer Info & Zero Designs Logo (Hidden when isStationery is true) */}
-        {!isStationery ? (
-          <footer className="mt-3 pt-2 flex justify-end items-start text-[10.5px] text-slate-500 relative z-10">
-            <div className="flex items-start gap-3 text-right">
-              <div className="space-y-0.5">
-                <div className="font-bold text-slate-800 uppercase text-[11.5px]">{settings.business_name}</div>
-                <div className="whitespace-pre-line leading-tight text-slate-500 text-[10.5px]">{cleanAddress}</div>
-                {cleanExtraInfo && (
-                  <div className="font-semibold text-slate-500 whitespace-pre-line text-[10.5px]">{cleanExtraInfo}</div>
-                )}
-                <div className="text-slate-400 font-semibold uppercase mt-0.5 text-[10.5px]">SUBJECT TO AHMEDABAD JURISDICATION</div>
-              </div>
-              <div className="flex-shrink-0 mt-0.5">
-                <img src="/zero-logo.svg" alt="Zero Designs Logo" className="h-10 w-auto" />
+        {/* Place of Supply & 3-Block Payment Grid */}
+        <div className="flex justify-between items-start mb-[20px] relative z-10">
+          <div className="w-[41%] text-[#777777]">
+            <span className="font-bold text-[13.33px] uppercase block mb-1">PLACE OF SUPPLY</span>
+            <span className="font-medium text-[13.33px] uppercase block">{client.state || 'GUJARAT'}</span>
+          </div>
+          <div className="w-[58%] text-right">
+            <table className="w-full border-collapse">
+              <tbody>
+                <tr>
+                  <td className="text-left w-1/3 align-middle" style={{ backgroundColor: '#2d424d', color: '#fff', height: '80px', padding: '15px 12px' }}>
+                    <div className="text-[13.33px] font-bold">DATE</div>
+                    <div className="text-[16px] font-medium mt-1">{formatDate(invoice.createdAt)}</div>
+                  </td>
+                  <td className="text-left w-1/3 align-middle" style={{ backgroundColor: themeBgHex, color: '#fff', height: '80px', padding: '15px 12px' }}>
+                    <div className="text-[13.33px] font-bold">PLEASE PAY</div>
+                    <div className="text-[16px] font-bold mt-1">
+                      {currSym} {invoice.totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                    </div>
+                  </td>
+                  <td className="text-left w-1/3 align-middle" style={{ backgroundColor: '#2d424d', color: '#fff', height: '80px', padding: '15px 12px' }}>
+                    <div className="text-[13.33px] font-bold">DUE DATE</div>
+                    <div className="text-[16px] font-medium mt-1">{formatDate(invoice.dueDate || invoice.createdAt)}</div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Line Items Table (Height 340px area roughly) */}
+        <div className="flex-1 flex flex-col mb-[20px] relative z-10" style={{ minHeight: '340px' }}>
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr style={{ backgroundColor: '#2e4151', color: 'white' }}>
+                <th className="py-2.5 px-2 text-center font-bold text-[13.33px] w-8">NO</th>
+                <th className="py-2.5 px-2 font-bold text-[13.33px] w-20">HSN/SAC</th>
+                <th className="py-2.5 px-2 font-bold text-[13.33px]">DESCRIPTION</th>
+                <th className="py-2.5 px-2 text-center font-bold text-[13.33px] w-12">UNIT</th>
+                <th className="py-2.5 px-2 text-center font-bold text-[13.33px] w-16">HRS/QTY</th>
+                <th className="py-2.5 px-2 text-right font-bold text-[13.33px] w-20">RATE</th>
+                <th className="py-2.5 px-2 text-right font-bold text-[13.33px] w-16">TAX</th>
+                <th className="py-2.5 px-2 text-right font-bold text-[13.33px] w-24">AMOUNT</th>
+              </tr>
+            </thead>
+            <tbody className="text-[#777777] text-[13.33px]">
+              {lineItems.map((item, idx) => (
+                <tr key={item.id} className="align-top border-b border-transparent">
+                  <td className="pt-3 px-2 text-center">{idx + 1}</td>
+                  <td className="pt-3 px-2">{item.hsnSac || '998314'}</td>
+                  <td className="pt-3 px-2">
+                    <div className="whitespace-pre-line">{decodeHtmlEntities(item.description || item.title || 'Services')}</div>
+                  </td>
+                  <td className="pt-3 px-2 text-center">{item.unit || '1'}</td>
+                  <td className="pt-3 px-2 text-center">{item.quantity}</td>
+                  <td className="pt-3 px-2 text-right">
+                    {isExport ? '$ ' : ''}{item.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                  </td>
+                  <td className="pt-3 px-2 text-right whitespace-nowrap">
+                    {item.taxable ? `${item.taxRate}% GST` : '0%'}
+                  </td>
+                  <td className="pt-3 px-2 text-right font-medium">
+                    {isExport ? '$ ' : ''}{(item.quantity * item.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div className="border-b border-[#2d424d] w-full mt-auto pt-4" />
+        </div>
+
+        {/* Totals & Bank Details Grid (Legacy reversed floats behavior) */}
+        <div className="flex justify-between items-start pt-2 relative z-10 text-[13.33px] text-[#777777]">
+          {/* Bank Details (Visually on Left in CSS) */}
+          <div className="w-1/2 pr-6">
+            <div className="mb-4">
+              <div className="font-bold mb-1 text-slate-700">Bank Details:</div>
+              <div className="whitespace-pre-line leading-relaxed font-medium">
+                {cleanBankDetail}
               </div>
             </div>
-          </footer>
-        ) : (
-          <div className="h-10 print:h-10 relative z-10" />
-        )}
 
+            <div>
+              <div className="font-bold mb-1 text-slate-700">For, US Dollar Remittances - USD</div>
+              <div className="whitespace-pre-line leading-relaxed font-medium">
+                Correspondent Bank Details<br />
+                J P MORGAN CHASE BANK,NEW YORK.<br />
+                US SWIFT Code: CHASUS33XXX
+              </div>
+            </div>
+          </div>
+
+          {/* Totals & Signature (Visually on Right in CSS) */}
+          <div className="w-1/2 flex flex-col items-end text-right">
+            <div className="w-full max-w-[320px] mb-4">
+              <div className="flex justify-between py-1">
+                <span className="font-bold">SUB TOTAL</span>
+                <span>{invoice.subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+              </div>
+              {invoice.cgst > 0 && (
+                <div className="flex justify-between py-1">
+                  <span className="font-bold">CGST @ 9% on {invoice.subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                  <span>{invoice.cgst.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                </div>
+              )}
+              {invoice.sgst > 0 && (
+                <div className="flex justify-between py-1">
+                  <span className="font-bold">SGST @ 9% on {invoice.subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                  <span>{invoice.sgst.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                </div>
+              )}
+              {invoice.igst > 0 && (
+                <div className="flex justify-between py-1">
+                  <span className="font-bold">IGST @ 18% on {invoice.subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                  <span>{invoice.igst.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                </div>
+              )}
+              {invoice.discount > 0 && (
+                <div className="flex justify-between py-1">
+                  <span className="font-bold">Discount</span>
+                  <span className="text-red-600">- {invoice.discount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                </div>
+              )}
+              
+              <div className="mt-2 bg-[#2C3E50] text-white flex justify-between px-4 py-2 font-bold">
+                <span style={{ fontSize: '13.33px' }}>TOTAL DUE</span>
+                <span style={{ fontSize: '20px' }}>
+                  {currSym} {invoice.totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                </span>
+              </div>
+            </div>
+
+            {/* Authorised Signatory */}
+            <div className="text-right mt-2 text-[13.33px] text-[#777777] font-medium leading-relaxed">
+              THANKYOU.<br />
+              For Zero Designs Private Limited<br />
+              
+              <div className="h-[60px] my-1 flex justify-end items-center">
+                {!isStationery ? (
+                  <img src="/signature.svg" alt="Signature" className="h-10 object-contain" />
+                ) : null}
+              </div>
+              
+              Authorised Signatory
+            </div>
+          </div>
+        </div>
+
+        {/* Footer Info (Only for non-stationery) */}
+        {!isStationery && (
+          <footer className="mt-8 flex justify-end items-start text-[10.5px] text-[#777777] relative z-10">
+            <div className="flex items-start gap-4 text-right">
+              <div className="space-y-0.5 leading-snug">
+                <div className="font-bold text-slate-800 uppercase text-[11.5px]">{settings.business_name}</div>
+                <div className="whitespace-pre-line">{cleanAddress}</div>
+                {cleanExtraInfo && (
+                  <div className="font-semibold">{cleanExtraInfo}</div>
+                )}
+                <div className="text-slate-400 font-semibold uppercase mt-0.5">SUBJECT TO AHMEDABAD JURISDICATION</div>
+              </div>
+              <img src="/zero-logo.svg" alt="Zero Designs" className="h-10 w-auto" />
+            </div>
+          </footer>
+        )}
       </div>
     </>
   );
