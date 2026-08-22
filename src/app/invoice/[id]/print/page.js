@@ -240,20 +240,18 @@ export default async function PrintInvoicePage({ params, searchParams }) {
 
         {/* PDF Header -> ORIGINAL FOR RECIPIENT */}
         <div className="flex justify-end mb-8 relative z-20 pt-8">
-          {!isStationery ? (
-            <div className="flex flex-col items-center">
+          <div className="flex flex-col items-center">
+            {!isStationery ? (
               <div className="bg-[#E94444] text-[#ffffff] px-2 py-0.5 text-[12.5px] font-bold text-center">
                 www.zerodesigns.in
               </div>
-              <div className="text-[12px] text-[#777777] font-normal uppercase text-center mt-1">
-                ORIGINAL FOR RECIPIENT
-              </div>
-            </div>
-          ) : (
+            ) : (
+              <div className="h-[22px]" />
+            )}
             <div className="text-[12px] text-[#777777] font-normal uppercase text-center mt-1">
               ORIGINAL FOR RECIPIENT
             </div>
-          )}
+          </div>
         </div>
 
         {/* Invoice Title & Export Details */}
