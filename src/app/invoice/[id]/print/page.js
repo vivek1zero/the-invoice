@@ -242,7 +242,7 @@ export default async function PrintInvoicePage({ params, searchParams }) {
         {/* Top Header: Red www.zerodesigns.in box touching top right edge of PDF */}
         {!isStationery ? (
           <div className="absolute top-0 right-[24px] z-20 flex flex-col items-center">
-            <div className="bg-[#E94444] text-white px-5 py-1.5 text-[16px] font-semibold rounded-none w-[170px] text-center">
+            <div className="bg-[#E94444] text-white px-4 py-1.5 text-[13.5px] font-bold rounded-none whitespace-nowrap text-center">
               www.zerodesigns.in
             </div>
             <div className="text-[13px] text-[#777777] font-normal uppercase text-center pt-[5px] mt-0.5">
