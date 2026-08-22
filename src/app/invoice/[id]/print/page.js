@@ -231,7 +231,7 @@ export default async function PrintInvoicePage({ params, searchParams }) {
           letterSpacing: 'normal',
           width: '794px',
           minHeight: '1123px',
-          padding: '0mm 8mm 10mm 14mm',
+          padding: '3mm 8mm 10mm 14mm',
           boxSizing: 'border-box'
         }}
         className="bg-[#ffffff] text-[#1e293b] mx-auto relative overflow-hidden flex flex-col justify-between"
@@ -245,15 +245,15 @@ export default async function PrintInvoicePage({ params, searchParams }) {
           </div>
         )}
 
-        {/* PDF Header -> ORIGINAL FOR RECIPIENT - Touches top */}
-        <div className="flex justify-end mb-2 relative z-20 pt-0">
+        {/* PDF Header -> ORIGINAL FOR RECIPIENT - Clean top padding & balanced badge */}
+        <div className="flex justify-end mb-2 relative z-20 pt-1">
           <div className="flex flex-col items-center">
             {!isStationery ? (
-              <div className="bg-[#E94444] text-[#ffffff] px-3 py-1.5 text-[12px] font-bold text-center leading-none flex items-center justify-center shadow-none">
+              <div className="bg-[#E94444] text-[#ffffff] px-3.5 py-1.5 min-h-[24px] text-[12px] font-bold text-center leading-none flex items-center justify-center shadow-none">
                 www.zerodesigns.in
               </div>
             ) : (
-              <div className="h-[22px]" />
+              <div className="h-[24px]" />
             )}
             <div className="text-[12px] text-[#777777] font-normal uppercase text-center mt-1 leading-tight">
               ORIGINAL FOR RECIPIENT
@@ -307,9 +307,9 @@ export default async function PrintInvoicePage({ params, searchParams }) {
           })()}
         </div>
 
-        {/* Place of Supply & 3-Block Payment Grid - Top-aligned and sits directly flush on the table */}
+        {/* Place of Supply & 3-Block Payment Grid - Aligned with the top of the 3 boxes */}
         <div className="flex justify-between items-start mb-0 relative z-10">
-          <div className="w-[38%] text-[#777777] pt-1">
+          <div className="w-[38%] text-[#777777] pt-2">
             <span className="font-bold text-[13.33px] uppercase block mb-0.5">PLACE OF SUPPLY</span>
             <span className="font-normal text-[13.33px] uppercase block">{client.state || 'GUJARAT'}</span>
           </div>
@@ -431,16 +431,16 @@ export default async function PrintInvoicePage({ params, searchParams }) {
                 </div>
               )}
               
-              <div className="mt-2 bg-[#2C3E50] text-[#ffffff] flex justify-between px-3 py-2 font-bold items-center">
-                <span style={{ fontSize: '15px' }}>Total Due</span>
-                <span style={{ fontSize: '18px' }}>
+              <div className="mt-2 bg-[#2C3E50] text-[#ffffff] flex justify-between px-3.5 py-2.5 min-h-[44px] font-bold items-center">
+                <span style={{ fontSize: '15px', lineHeight: 1 }}>Total Due</span>
+                <span style={{ fontSize: '18px', lineHeight: 1 }}>
                   {currSym === '₹' ? 'INR' : currSym} {invoice.totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                 </span>
               </div>
             </div>
 
             {/* Authorised Signatory */}
-            <div className="text-right mt-2 text-[13.33px] text-[#777777] font-medium leading-relaxed">
+            <div className="text-right mt-2 text-[13.33px] text-[#777777] font-medium leading-relaxed w-full max-w-[340px]">
               THANKYOU.<br />
               For Zero Designs Private Limited<br />
               
