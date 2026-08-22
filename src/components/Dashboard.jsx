@@ -2944,22 +2944,24 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                             onChange={(e) => {
                               const val = e.target.value;
                               if (!val) return;
-                              const selected = servicePresetsList.find(p => p.hsnSac === val || p.label === val);
+                              const selected = servicePresetsList.find(p => p.label === val || p.hsnSac === val || `${p.hsnSac} - ${p.title}` === val);
                               if (selected) {
-                                handleLineItemChange(index, 'hsnSac', selected.hsnSac);
-                                handleLineItemChange(index, 'title', selected.title);
-                                handleLineItemChange(index, 'description', selected.title);
+                                const fullPresetText = selected.label || (selected.title ? `${selected.hsnSac} - ${selected.title}` : selected.hsnSac);
+                                handleLineItemChange(index, 'hsnSac', fullPresetText);
                               }
                             }}
                             className="w-full p-2 border border-slate-300 rounded-lg text-xs bg-slate-50 text-slate-800 font-medium focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none"
-                            value={item.hsnSac || ""}
+                            value=""
                           >
                             <option value="">-- Choose Preset ({servicePresetsList.map(p => p.hsnSac).join(', ')}) --</option>
-                            {servicePresetsList.map((preset, pIdx) => (
-                              <option key={pIdx} value={preset.hsnSac}>
-                                {preset.label || `${preset.hsnSac} - ${preset.title}`}
-                              </option>
-                            ))}
+                            {servicePresetsList.map((preset, pIdx) => {
+                              const labelText = preset.label || (preset.title ? `${preset.hsnSac} - ${preset.title}` : preset.hsnSac);
+                              return (
+                                <option key={pIdx} value={labelText}>
+                                  {labelText}
+                                </option>
+                              );
+                            })}
                           </select>
                         </div>
 
@@ -2969,7 +2971,7 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                           <input
                             type="text"
                             required
-                            placeholder="e.g. 998314 or Service Code"
+                            placeholder="e.g. 998314 - Web Development or Service Code"
                             value={item.hsnSac || ''}
                             onChange={(e) => handleLineItemChange(index, 'hsnSac', e.target.value)}
                             className="w-full p-2 border border-slate-300 rounded-lg text-xs bg-white font-medium text-slate-800 focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none"
