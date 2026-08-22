@@ -1857,7 +1857,7 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                         <th className="py-2.5 px-3">Client</th>
                         <th className="py-2.5 px-3 whitespace-nowrap">Date</th>
                         <th className="py-2.5 px-3 text-right whitespace-nowrap">Total Amount</th>
-                        <th className="py-2.5 px-3 text-center w-24">Status</th>
+                        <th className="py-2.5 px-3 text-center w-20">Status</th>
                         <th className="py-2.5 px-3 text-center w-24">Actions</th>
                       </tr>
                     </thead>
@@ -1898,8 +1898,8 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                           <td className="py-2.5 px-3 text-right font-semibold text-slate-800 text-xs">
                             {getCurrencySymbol(inv)}{inv.totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                           </td>
-                          <td className="py-2.5 px-3 text-center">
-                            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xxs font-semibold ${inv.status === 'PAID'
+                          <td className="py-2.5 px-2 text-center">
+                            <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase whitespace-nowrap ${inv.status === 'PAID'
                               ? 'bg-emerald-50 text-emerald-600 border border-emerald-200'
                               : inv.status === 'PROFORMA'
                                 ? 'bg-blue-50 text-blue-600 border border-blue-200'
