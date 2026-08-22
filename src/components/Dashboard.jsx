@@ -2704,33 +2704,8 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                 </div>
               )}
 
-              {/* Meta options */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 p-4 border border-slate-200 rounded-xl">
-                <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Invoice Number</label>
-                  <input
-                    type="text"
-                    required
-                    value={invoiceForm.invoiceNumber}
-                    onChange={(e) => setInvoiceForm({ ...invoiceForm, invoiceNumber: e.target.value })}
-                    placeholder="e.g. INV-0948"
-                    className="w-full p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none text-slate-800 font-mono bg-white"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Order / Serial ID (PDF header)</label>
-                  <input
-                    type="text"
-                    value={invoiceForm.orderNumber}
-                    onChange={(e) => setInvoiceForm({ ...invoiceForm, orderNumber: e.target.value })}
-                    placeholder="e.g. D2026270616"
-                    className="w-full p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none text-slate-800 font-mono bg-white"
-                  />
-                </div>
-
-              {/* Standalone Top Header Section: Invoice Title / Subject */}
-              <div className="bg-slate-900 text-white p-4 rounded-2xl mb-5 shadow-lg border border-slate-800">
+              {/* 1. Standalone Top Section: Invoice Title / Subject */}
+              <div className="bg-slate-900 text-white p-4 rounded-2xl mb-4 shadow-lg border border-slate-800">
                 <div className="flex items-center justify-between mb-2">
                   <label className="text-xs font-extrabold uppercase tracking-widest text-[#E94444] flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4 text-[#E94444]">
@@ -2756,14 +2731,19 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                 />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <ClientSearchCombobox
-                  clients={clients}
-                  selectedClientId={invoiceForm.clientId}
-                  onSelectClient={(clientId) => {
-                    handleClientSelectInInvoice(clientId);
-                  }}
-                />
+              {/* 2. Meta options grid container */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 p-4 border border-slate-200 rounded-xl">
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Invoice Number</label>
+                  <input
+                    type="text"
+                    required
+                    value={invoiceForm.invoiceNumber}
+                    onChange={(e) => setInvoiceForm({ ...invoiceForm, invoiceNumber: e.target.value })}
+                    placeholder="e.g. INV-0948"
+                    className="w-full p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none text-slate-800 font-mono bg-white"
+                  />
+                </div>
 
                 <div>
                   <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Order / Serial ID (PDF header)</label>
@@ -2775,6 +2755,14 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                     className="w-full p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none text-slate-800 font-mono bg-white"
                   />
                 </div>
+
+                <ClientSearchCombobox
+                  clients={clients}
+                  selectedClientId={invoiceForm.clientId}
+                  onSelectClient={(clientId) => {
+                    handleClientSelectInInvoice(clientId);
+                  }}
+                />
 
                 <div>
                   <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Supply Region</label>
