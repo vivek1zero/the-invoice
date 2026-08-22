@@ -231,7 +231,7 @@ export default async function PrintInvoicePage({ params, searchParams }) {
           letterSpacing: 'normal',
           width: '794px',
           minHeight: '1123px',
-          padding: '3mm 8mm 10mm 14mm',
+          padding: '0mm 8mm 10mm 14mm',
           boxSizing: 'border-box'
         }}
         className="bg-[#ffffff] text-[#1e293b] mx-auto relative overflow-hidden flex flex-col justify-between"
@@ -255,24 +255,24 @@ export default async function PrintInvoicePage({ params, searchParams }) {
           </div>
         )}
 
-        {/* PDF Header -> ORIGINAL FOR RECIPIENT - Clean top padding & balanced badge */}
-        <div className="flex justify-end mb-2 relative z-20 pt-1">
+        {/* PDF Header -> ORIGINAL FOR RECIPIENT */}
+        <div className="flex justify-end mb-6 relative z-20 pt-0">
           <div className="flex flex-col items-center">
             {!isStationery ? (
-              <div className="bg-[#E94444] text-[#ffffff] px-3.5 py-1.5 min-h-[24px] text-[12px] font-bold text-center leading-none flex items-center justify-center shadow-none">
+              <div className="bg-[#E94444] text-[#ffffff] px-4 py-2 text-[13.33px] font-bold text-center leading-none flex items-center justify-center">
                 www.zerodesigns.in
               </div>
             ) : (
-              <div className="h-[24px]" />
+              <div className="h-[28px]" />
             )}
-            <div className="text-[12px] text-[#777777] font-normal uppercase text-center mt-1 leading-tight">
+            <div className="text-[12px] text-[#777777] font-normal uppercase text-center mt-1.5 tracking-normal">
               ORIGINAL FOR RECIPIENT
             </div>
           </div>
         </div>
 
         {/* Invoice Title & Export Details */}
-        <div className="flex justify-between items-start mb-3 relative z-10">
+        <div className="flex justify-between items-start mb-4 relative z-10">
           <div className="w-1/2">
             <h2 className="text-[20px] font-bold tracking-tight" style={{ color: themeTextHex }}>
               {isProforma ? 'Proforma Invoice' : (isExport ? 'Export Invoice' : 'Tax Invoice')} | {invoice.orderNumber || invoice.invoiceNumber}
@@ -292,7 +292,7 @@ export default async function PrintInvoicePage({ params, searchParams }) {
         </div>
 
         {/* Sliced Address (INVOICE TO) */}
-        <div className="mb-3 text-[#777777] relative z-10 leading-snug">
+        <div className="mb-5 text-[#777777] relative z-10 leading-snug">
           <div className="font-bold text-[13.33px] uppercase mb-1">INVOICE TO</div>
           {(() => {
             const first = client?.firstName ? client.firstName.trim() : '';
@@ -301,15 +301,15 @@ export default async function PrintInvoicePage({ params, searchParams }) {
             const contactName = fullName || client?.contactPerson || '';
 
             return (
-              <div className="sliced-address text-[13.33px]">
+              <div className="sliced-address text-[13.33px] space-y-0.5">
                 {contactName && (
-                  <div className="text-[#777777] font-medium">{contactName}</div>
+                  <div className="text-[#777777] font-normal">{contactName}</div>
                 )}
                 <div className="font-bold text-[#777777] uppercase">{client?.name || 'Client Name'}</div>
-                <div className="text-[#777777] mt-0.5 whitespace-pre-line">
+                <div className="text-[#777777] font-normal whitespace-pre-line leading-relaxed">
                   {client?.address || 'Address not specified'}
                 </div>
-                <div className="text-[#777777] mt-0.5">
+                <div className="text-[#777777] font-normal pt-0.5">
                   State Code: {client?.stateCode || '24'} | GSTIN: {client?.gstin || 'N/A'}
                 </div>
               </div>
