@@ -2693,9 +2693,7 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                 onClick={() => setIsInvoiceModalOpen(false)}
                 className="text-slate-400 hover:text-slate-600 text-2xl font-semibold p-1"
               >
-                &times;
-              </button>
-            </div>
+              </div>
 
             <form onSubmit={handleInvoiceSubmit} className="overflow-y-auto pr-1 flex-1 space-y-6 text-sm">
               {invoiceFormError && (
@@ -2704,16 +2702,15 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                 </div>
               )}
 
-              {/* 1. Standalone Top Section: Invoice Title / Subject */}
+              {/* 1. Standalone Top Section: Invoice Title */}
               <div className="bg-white p-4 rounded-2xl mb-4 shadow-sm border border-slate-300">
-                <div className="flex items-center justify-between mb-2">
+                <div className="mb-2">
                   <label className="text-xs font-extrabold uppercase tracking-widest text-[#E94444] flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4 text-[#E94444]">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
                     </svg>
-                    Invoice Title / Subject
+                    Invoice Title
                   </label>
-                  <span className="text-[11px] font-semibold text-slate-400">Title for Dashboard & Line Item</span>
                 </div>
                 <input
                   type="text"
@@ -2879,7 +2876,7 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                     </label>
                     <input
                       type="date"
-                      value={invoiceForm.createdAt || ''}
+                      value={invoiceForm.createdAt || new Date().toISOString().split('T')[0]}
                       onClick={(e) => e.target.showPicker && e.target.showPicker()}
                       onChange={(e) => setInvoiceForm({ ...invoiceForm, createdAt: e.target.value })}
                       className="w-full p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none text-slate-800 bg-white font-medium cursor-pointer shadow-sm"
@@ -2892,7 +2889,7 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                     </label>
                     <input
                       type="date"
-                      value={invoiceForm.dueDate || ''}
+                      value={invoiceForm.dueDate || new Date().toISOString().split('T')[0]}
                       onClick={(e) => e.target.showPicker && e.target.showPicker()}
                       onChange={(e) => setInvoiceForm({ ...invoiceForm, dueDate: e.target.value })}
                       className="w-full p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none text-slate-800 bg-white font-medium cursor-pointer shadow-sm"
@@ -2929,14 +2926,15 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                         &times;
                       </button>
 
+                      {/* 50 / 50 Grid Layout for Presets & HSN/SAC */}
                       <div className="grid grid-cols-12 gap-3 mb-2">
-                        {/* Quick Service Preset (Left 8 Columns) */}
-                        <div className="col-span-8">
+                        {/* Quick Service Preset (Left 6 Columns - 50%) */}
+                        <div className="col-span-6">
                           <label className="block text-xxs font-bold text-slate-500 uppercase mb-1 flex items-center justify-between">
                             <span className="flex items-center gap-1 text-[#E94444]">
                               ⚡ Quick Service Preset
                             </span>
-                            <span className="text-slate-400 text-[10px] lowercase font-normal">
+                            <span className="text-slate-400 text-[10px] lowercase font-normal hidden sm:inline">
                               (auto-fill HSN)
                             </span>
                           </label>
@@ -2955,7 +2953,7 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                             className="w-full p-2 border border-slate-300 rounded-lg text-xs bg-slate-50 text-slate-800 font-medium focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none"
                             value={item.hsnSac || ""}
                           >
-                            <option value="">-- Choose Service Preset ({servicePresetsList.map(p => p.hsnSac).join(', ')}) --</option>
+                            <option value="">-- Choose Preset ({servicePresetsList.map(p => p.hsnSac).join(', ')}) --</option>
                             {servicePresetsList.map((preset, pIdx) => (
                               <option key={pIdx} value={preset.hsnSac}>
                                 {preset.label || `${preset.hsnSac} - ${preset.title}`}
@@ -2964,18 +2962,19 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                           </select>
                         </div>
 
-                        {/* HSN/SAC Input (Right 4 Columns) */}
-                        <div className="col-span-4">
+                        {/* HSN/SAC Input (Right 6 Columns - 50%) */}
+                        <div className="col-span-6">
                           <label className="block text-xxs font-bold text-slate-500 uppercase mb-1">HSN/SAC</label>
                           <input
                             type="text"
                             required
-                            placeholder="998314"
-                            value={item.hsnSac}
+                            placeholder="e.g. 998314 or Service Code"
+                            value={item.hsnSac || ''}
                             onChange={(e) => handleLineItemChange(index, 'hsnSac', e.target.value)}
-                            className="w-full p-2 border border-slate-300 rounded-lg text-xs bg-white font-mono text-slate-800 focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none"
+                            className="w-full p-2 border border-slate-300 rounded-lg text-xs bg-white font-medium text-slate-800 focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none"
                           />
                         </div>
+                      </div>
                       </div>
 
                       <div>
