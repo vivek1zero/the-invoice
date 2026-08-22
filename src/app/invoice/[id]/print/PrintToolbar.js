@@ -33,32 +33,42 @@ export default function PrintToolbar({ isStationery, pdfTitle }) {
 
   const [isDownloading, setIsDownloading] = useState(false);
 
-  // Direct 1-click PDF download to computer
+  // Direct 1-click PDF download to computer using bundled libraries
   const handleDownloadPdf = async () => {
     setIsDownloading(true);
     try {
-      if (!window.html2pdf) {
-        await new Promise((resolve, reject) => {
-          const script = document.createElement('script');
-          script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
-          script.onload = resolve;
-          script.onerror = reject;
-          document.head.appendChild(script);
-        });
+      const element = document.getElementById('invoice-pdf-container');
+      if (!element) {
+        window.print();
+        return;
       }
 
-      const element = document.getElementById('invoice-pdf-container');
-      const opt = {
-        margin: [10, 10, 10, 10],
-        filename: `${pdfTitle || 'invoice'}.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, letterRendering: true },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-      };
+      const html2canvasModule = await import('html2canvas');
+      const html2canvas = html2canvasModule.default || html2canvasModule;
+      const { jsPDF } = await import('jspdf');
 
-      await window.html2pdf().set(opt).from(element).save();
+      // Render the invoice element at high resolution
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff'
+      });
+
+      const imgData = canvas.toDataURL('image/jpeg', 0.98);
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = (canvas.height * pageWidth) / canvas.width;
+
+      pdf.addImage(imgData, 'JPEG', 0, 0, pageWidth, pageHeight);
+      pdf.save(`${pdfTitle || 'invoice'}.pdf`);
     } catch (err) {
-      console.error('Direct PDF download failed, falling back to print dialog:', err);
+      console.error('Direct PDF download error:', err);
       window.print();
     } finally {
       setIsDownloading(false);
