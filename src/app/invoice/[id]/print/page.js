@@ -227,7 +227,7 @@ export default async function PrintInvoicePage({ params, searchParams }) {
       <div 
         id="invoice-pdf-container"
         style={{ fontFamily: "'Averta', sans-serif", letterSpacing: 'normal' }}
-        className="bg-white text-slate-800 pb-6 px-10 max-w-[850px] mx-auto relative overflow-hidden flex flex-col min-h-[1050px]"
+        className="bg-[#ffffff] text-[#1e293b] pb-6 px-10 max-w-[850px] mx-auto relative overflow-hidden flex flex-col min-h-[1050px]"
       >
         <TriggerPrint />
 
@@ -242,7 +242,7 @@ export default async function PrintInvoicePage({ params, searchParams }) {
         <div className="flex justify-end mb-8 relative z-20 pt-8">
           {!isStationery ? (
             <div className="flex flex-col items-center">
-              <div className="bg-[#E94444] text-white px-3 py-1 text-[13.33px] font-bold text-center">
+              <div className="bg-[#E94444] text-[#ffffff] px-3 py-1 text-[13.33px] font-bold text-center">
                 www.zerodesigns.in
               </div>
               <div className="text-[12px] text-[#777777] font-normal uppercase text-center mt-1">
@@ -266,7 +266,7 @@ export default async function PrintInvoicePage({ params, searchParams }) {
           <div className="w-1/2 text-right text-[#777777]">
             {isExport && (
               <>
-                <div className="font-bold text-[12px] uppercase text-slate-700">LUT ARN No.: {invoice.lutArn || settings.business_lut_arn}</div>
+                <div className="font-bold text-[12px] uppercase text-[#334155]">LUT ARN No.: {invoice.lutArn || settings.business_lut_arn}</div>
                 <div className="text-[11px] leading-snug mt-0.5">
                   Supply Meant for Export Under Bond of Letter of Understanding<br/>
                   without Payment of Integrated Tax (IGST)
@@ -422,11 +422,11 @@ export default async function PrintInvoicePage({ params, searchParams }) {
               {invoice.discount > 0 && (
                 <div className="flex justify-between py-1">
                   <span className="font-bold">Discount</span>
-                  <span className="text-red-600 font-normal">- {invoice.discount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                  <span className="text-[#dc2626] font-normal">- {invoice.discount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
                 </div>
               )}
               
-              <div className="mt-2 bg-[#2C3E50] text-white flex justify-between px-3 py-2 font-bold items-center">
+              <div className="mt-2 bg-[#2C3E50] text-[#ffffff] flex justify-between px-3 py-2 font-bold items-center">
                 <span style={{ fontSize: '15px' }}>Total Due</span>
                 <span style={{ fontSize: '18px' }}>
                   {currSym === '₹' ? 'INR' : currSym} {invoice.totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
@@ -455,12 +455,12 @@ export default async function PrintInvoicePage({ params, searchParams }) {
           <footer className="mt-8 flex justify-end items-start text-[10.5px] text-[#777777] relative z-10">
             <div className="flex items-start gap-4 text-right">
               <div className="space-y-0.5 leading-snug">
-                <div className="font-bold text-slate-800 uppercase text-[11.5px]">{settings.business_name}</div>
+                <div className="font-bold text-[#1e293b] uppercase text-[11.5px]">{settings.business_name}</div>
                 <div className="whitespace-pre-line">{cleanAddress}</div>
                 {cleanExtraInfo && (
                   <div className="font-semibold">{cleanExtraInfo}</div>
                 )}
-                <div className="text-slate-400 font-semibold uppercase mt-0.5">SUBJECT TO AHMEDABAD JURISDICATION</div>
+                <div className="text-[#94a3b8] font-semibold uppercase mt-0.5">SUBJECT TO AHMEDABAD JURISDICATION</div>
               </div>
               <img src="/zero-logo.svg" alt="Zero Designs" className="h-10 w-auto" />
             </div>
