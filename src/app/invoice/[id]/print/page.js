@@ -242,7 +242,7 @@ export default async function PrintInvoicePage({ params, searchParams }) {
         <div className="flex justify-end mb-8 relative z-20 pt-8">
           {!isStationery ? (
             <div className="flex flex-col items-center">
-              <div className="bg-[#E94444] text-[#ffffff] px-3 py-1 text-[13.33px] font-bold text-center">
+              <div className="bg-[#E94444] text-[#ffffff] px-2 py-0.5 text-[12.5px] font-bold text-center">
                 www.zerodesigns.in
               </div>
               <div className="text-[12px] text-[#777777] font-normal uppercase text-center mt-1">
@@ -336,15 +336,15 @@ export default async function PrintInvoicePage({ params, searchParams }) {
         <div className="flex-1 flex flex-col mb-4 relative z-10" style={{ minHeight: '320px' }}>
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-t border-b border-[#2d424d] text-[#777777]">
-                <th className="py-2 px-2 text-left font-bold text-[12px] w-8">NO</th>
-                <th className="py-2 px-2 text-left font-bold text-[12px] w-16">HSN/SAC</th>
-                <th className="py-2 px-2 text-left font-bold text-[12px]">DESCRIPTION</th>
-                <th className="py-2 px-2 text-center font-bold text-[12px] w-12">UNIT</th>
-                <th className="py-2 px-2 text-center font-bold text-[12px] w-16">HRS/QTY</th>
-                <th className="py-2 px-2 text-right font-bold text-[12px] w-20">RATE</th>
-                <th className="py-2 px-2 text-center font-bold text-[12px] w-12">TAX</th>
-                <th className="py-2 px-2 text-right font-bold text-[12px] w-24">AMOUNT</th>
+              <tr className="text-[#777777]">
+                <th className="py-2 px-2 text-left font-bold text-[12px] w-8 border-y border-[#2d424d]">NO</th>
+                <th className="py-2 px-2 text-left font-bold text-[12px] w-16 border-y border-[#2d424d]">HSN/SAC</th>
+                <th className="py-2 px-2 text-left font-bold text-[12px] border-y border-[#2d424d]">DESCRIPTION</th>
+                <th className="py-2 px-2 text-center font-bold text-[12px] w-12 border-y border-[#2d424d]">UNIT</th>
+                <th className="py-2 px-2 text-center font-bold text-[12px] w-16 border-y border-[#2d424d]">HRS/QTY</th>
+                <th className="py-2 px-2 text-right font-bold text-[12px] w-20 border-y border-[#2d424d]">RATE</th>
+                <th className="py-2 px-2 text-center font-bold text-[12px] w-12 border-y border-[#2d424d]">TAX</th>
+                <th className="py-2 px-2 text-right font-bold text-[12px] w-24 border-y border-[#2d424d]">AMOUNT</th>
               </tr>
             </thead>
             <tbody className="text-[#777777] text-[13.33px]">
