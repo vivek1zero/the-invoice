@@ -302,21 +302,22 @@ export default async function PrintInvoicePage({ params, searchParams }) {
               <div className="text-[#777777] uppercase font-bold text-[13px] mb-0.5">PLACE OF SUPPLY</div>
               <div className="font-medium text-[#777777] text-[13px] uppercase">{client.state || 'GUJARAT'}</div>
             </div>
-
-            <div className="w-full max-w-[400px]">
-              <div className="grid grid-cols-3 text-left overflow-hidden text-[13px]">
-                {/* Header Row */}
-                <div className="bg-[#2C3E50] text-white py-2.5 px-1 font-bold text-left" style={{ padding: '15px 15px' }}>
+            <div className="w-auto min-w-[420px] max-w-[480px]">
+              <div className="flex text-left overflow-hidden text-[13px]">
+                {/* DATE Block */}
+                <div className="bg-[#2C3E50] text-white py-3 px-3.5 font-bold text-left flex-1 whitespace-nowrap">
                   DATE<br />
-                  <span className="text-white text-[16px] font-medium inline-block mt-0.5" style={{ fontSize: '16px' }}>{formatDate(invoice.createdAt)}</span>
+                  <span className="text-white font-medium inline-block mt-0.5 whitespace-nowrap" style={{ fontSize: '15px' }}>{formatDate(invoice.createdAt)}</span>
                 </div>
-                <div className="text-white py-2.5 px-1 font-bold text-left flex flex-col justify-center" style={{ backgroundColor: themeBgHex, padding: '15px 15px' }}>
-                  <span>PLEASE PAY</span>
-                  <span className="text-white text-[16px] font-bold inline-block mt-0.5" style={{ fontSize: '16px' }}>{currSym} {invoice.totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                {/* PLEASE PAY Block */}
+                <div className="text-white py-3 px-3.5 font-bold text-left flex flex-col justify-center flex-auto whitespace-nowrap" style={{ backgroundColor: themeBgHex }}>
+                  <span className="whitespace-nowrap">PLEASE PAY</span>
+                  <span className="text-white font-bold inline-block mt-0.5 whitespace-nowrap" style={{ fontSize: '15px' }}>{currSym} {invoice.totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
                 </div>
-                <div className="bg-[#2C3E50] text-white py-2.5 px-1 font-bold text-left" style={{ padding: '15px 15px' }}>
+                {/* DUE DATE Block */}
+                <div className="bg-[#2C3E50] text-white py-3 px-3.5 font-bold text-left flex-1 whitespace-nowrap">
                   DUE DATE<br />
-                  <span className="text-white text-[16px] font-medium inline-block mt-0.5" style={{ fontSize: '16px' }}>{formatDate(invoice.dueDate || invoice.createdAt)}</span>
+                  <span className="text-white font-medium inline-block mt-0.5 whitespace-nowrap" style={{ fontSize: '15px' }}>{formatDate(invoice.dueDate || invoice.createdAt)}</span>
                 </div>
               </div>
             </div>
