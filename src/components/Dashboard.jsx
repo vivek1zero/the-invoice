@@ -2930,51 +2930,29 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
 
                       {/* 2-Column 50/50 Row: HSN/SAC with Presets (50%) + Description (50%) */}
                       <div className="grid grid-cols-12 gap-3 mb-2">
-                        {/* HSN/SAC Input with Quick Preset Picker (Left 6 Columns - 50%) */}
+                        {/* HSN/SAC Dropdown Selector (Left 6 Columns - 50%) */}
                         <div className="col-span-12 sm:col-span-6">
-                          <div className="flex items-center justify-between mb-1">
-                            <label className="block text-xxs font-bold text-slate-600 uppercase">
-                              HSN/SAC
-                            </label>
-                            <select
-                              onChange={(e) => {
-                                const val = e.target.value;
-                                if (!val) return;
-                                const selected = servicePresetsList.find(p => p.label === val || p.hsnSac === val || `${p.hsnSac} - ${p.title}` === val);
-                                if (selected) {
-                                  const fullPresetText = selected.label || (selected.title ? `${selected.hsnSac} - ${selected.title}` : selected.hsnSac);
-                                  handleLineItemChange(index, 'hsnSac', fullPresetText);
-                                }
-                              }}
-                              className="text-[10px] bg-slate-100 border border-slate-300 rounded px-1.5 py-0.5 text-slate-700 font-medium focus:ring-1 focus:ring-[#E94444] outline-none cursor-pointer"
-                              value=""
-                            >
-                              <option value="">⚡ Quick Presets</option>
-                              {servicePresetsList.map((preset, pIdx) => {
-                                const labelText = preset.label || (preset.title ? `${preset.hsnSac} - ${preset.title}` : preset.hsnSac);
-                                return (
-                                  <option key={pIdx} value={labelText}>
-                                    {labelText}
-                                  </option>
-                                );
-                              })}
-                            </select>
-                          </div>
-                          <input
-                            type="text"
-                            required
-                            list={`hsn-presets-list-${index}`}
-                            placeholder="e.g. 998314 - Web Development"
-                            value={item.hsnSac || ''}
+                          <label className="block text-xxs font-bold text-slate-600 uppercase mb-1">
+                            HSN/SAC
+                          </label>
+                          <select
+                            value={item.hsnSac || ""}
                             onChange={(e) => handleLineItemChange(index, 'hsnSac', e.target.value)}
-                            className="w-full p-2 border border-slate-300 rounded-lg text-xs bg-white font-medium text-slate-800 focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none"
-                          />
-                          <datalist id={`hsn-presets-list-${index}`}>
+                            className="w-full p-2 border border-slate-300 rounded-lg text-xs bg-white text-slate-800 font-medium focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none"
+                          >
+                            <option value="">-- Choose Preset ({servicePresetsList.map(p => p.hsnSac).join(', ')}) --</option>
                             {servicePresetsList.map((preset, pIdx) => {
                               const labelText = preset.label || (preset.title ? `${preset.hsnSac} - ${preset.title}` : preset.hsnSac);
-                              return <option key={pIdx} value={labelText} />;
+                              return (
+                                <option key={pIdx} value={labelText}>
+                                  {labelText}
+                                </option>
+                              );
                             })}
-                          </datalist>
+                            {item.hsnSac && !servicePresetsList.some(p => (p.label === item.hsnSac || `${p.hsnSac} - ${p.title}` === item.hsnSac || p.hsnSac === item.hsnSac)) && (
+                              <option value={item.hsnSac}>{item.hsnSac}</option>
+                            )}
+                          </select>
                         </div>
 
                         {/* Description Input (Right 6 Columns - 50%) */}
