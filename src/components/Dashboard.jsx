@@ -1031,6 +1031,7 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
       id: inv.id,
       invoiceNumber: inv.invoiceNumber,
       orderNumber: inv.orderNumber || '',
+      title: inv.lineItems?.[0]?.title || '',
       clientId: inv.clientId,
       status: inv.status,
       domesticExport: inv.domesticExport || 'Domestic',
@@ -2731,7 +2732,14 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                   <input
                     type="text"
                     value={invoiceForm.title || ''}
-                    onChange={(e) => setInvoiceForm({ ...invoiceForm, title: e.target.value })}
+                    onChange={(e) => {
+                      const newTitle = e.target.value;
+                      setInvoiceForm(prev => ({
+                        ...prev,
+                        title: newTitle,
+                        lineItems: prev.lineItems.map((item, idx) => idx === 0 ? { ...item, title: newTitle } : item)
+                      }));
+                    }}
                     placeholder="e.g. Raudratech August 26-001 or Web Development Services"
                     className="w-full p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none text-slate-800 bg-white font-medium text-sm"
                   />
