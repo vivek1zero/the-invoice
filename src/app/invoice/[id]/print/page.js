@@ -226,8 +226,15 @@ export default async function PrintInvoicePage({ params, searchParams }) {
 
       <div 
         id="invoice-pdf-container"
-        style={{ fontFamily: "'Averta', sans-serif", letterSpacing: 'normal' }}
-        className="bg-[#ffffff] text-[#1e293b] pb-6 px-10 max-w-[850px] mx-auto relative overflow-hidden flex flex-col min-h-[1050px]"
+        style={{ 
+          fontFamily: "'Averta', sans-serif", 
+          letterSpacing: 'normal',
+          width: '794px',
+          minHeight: '1123px',
+          padding: '22mm 7mm 10mm 15mm',
+          boxSizing: 'border-box'
+        }}
+        className="bg-[#ffffff] text-[#1e293b] mx-auto relative overflow-hidden flex flex-col justify-between"
       >
         <TriggerPrint />
 
@@ -331,7 +338,7 @@ export default async function PrintInvoicePage({ params, searchParams }) {
         </div>
 
         {/* Line Items Table */}
-        <div className="flex-1 flex flex-col mb-4 relative z-10" style={{ minHeight: '320px' }}>
+        <div className="flex-1 flex flex-col mb-4 relative z-10" style={{ minHeight: '340px' }}>
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="text-[#777777]">

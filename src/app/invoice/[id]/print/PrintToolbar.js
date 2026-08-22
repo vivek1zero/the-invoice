@@ -49,8 +49,8 @@ export default function PrintToolbar({ isStationery, pdfTitle }) {
           format: 'a4'
         });
 
-        const pageWidth = pdf.internal.pageSize.getWidth();
-        const pageHeight = (canvas.height * pageWidth) / canvas.width;
+        const pageWidth = 210;
+        const pageHeight = 297;
 
         pdf.addImage(imgData, 'JPEG', 0, 0, pageWidth, pageHeight);
         
