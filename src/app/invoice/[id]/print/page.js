@@ -242,15 +242,15 @@ export default async function PrintInvoicePage({ params, searchParams }) {
         {/* Top Header: Red www.zerodesigns.in box touching top right edge of PDF */}
         {!isStationery ? (
           <div className="absolute top-0 right-[24px] z-20 flex flex-col items-center">
-            <div className="bg-[#E94444] text-white px-5 py-1.5 text-[13px] font-bold rounded-none">
+            <div className="bg-[#E94444] text-white px-5 py-1.5 text-[16px] font-semibold rounded-none w-[170px] text-center">
               www.zerodesigns.in
             </div>
-            <div className="text-[11px] text-slate-400 font-semibold uppercase text-center pt-[5px] mt-0.5">
+            <div className="text-[13px] text-[#777777] font-normal uppercase text-center pt-[5px] mt-0.5">
               ORIGINAL FOR RECIPIENT
             </div>
           </div>
         ) : (
-          <div className="absolute top-4 right-[24px] z-20 text-[11px] text-slate-400 font-semibold uppercase text-center pt-[5px]">
+          <div className="absolute top-4 right-[24px] z-20 text-[13px] text-[#777777] font-normal uppercase text-center pt-[5px]">
             ORIGINAL FOR RECIPIENT
           </div>
         )}
@@ -259,13 +259,13 @@ export default async function PrintInvoicePage({ params, searchParams }) {
         <div className="relative z-10 pt-2 flex-1 flex flex-col">
 
           {/* Red/Green Tax Invoice Title | Order Number */}
-          <div className="mb-8 flex justify-between items-center pr-36">
-            <h1 className="text-xl font-bold tracking-tight" style={{ color: themeTextHex }}>
+          <div className="mb-6 flex justify-between items-center pr-48">
+            <h1 className="text-[20px] font-bold tracking-tight" style={{ color: themeTextHex }}>
               {isProforma ? 'Proforma Invoice' : 'Tax Invoice'} | {invoice.orderNumber || invoice.invoiceNumber}
             </h1>
             {isExport && (
               <div className="text-right">
-                <span className="text-[11px] font-bold text-slate-700 uppercase block">
+                <span className="text-[12px] font-bold text-slate-700 uppercase block">
                   LUT ARN No.: {invoice.lutArn || settings.business_lut_arn} ({lutValidity})
                 </span>
               </div>
@@ -280,16 +280,16 @@ export default async function PrintInvoicePage({ params, searchParams }) {
             const contactName = fullName || client?.contactPerson || '';
 
             return (
-              <div className="mb-6 font-medium">
-                <div className="text-[11.5px] uppercase font-bold mb-0.5" style={{ color: '#777', fontWeight: 700 }}>INVOICE TO</div>
+              <div className="mb-6 font-medium text-[#777777]">
+                <div className="text-[13.33px] uppercase font-bold mb-0.5" style={{ color: '#777777' }}>INVOICE TO</div>
                 {contactName && (
-                  <div className="text-slate-800 text-[12.5px] font-medium mb-1.5">{contactName}</div>
+                  <div className="text-slate-800 text-[13px] font-medium mb-1">{contactName}</div>
                 )}
-                <div className="font-bold text-[12.5px]" style={{ color: '#777' }}>{client?.name || 'Client Name'}</div>
-                <div className="text-slate-600 leading-normal text-[12px] mt-0.5 whitespace-pre-line max-w-[500px]">
+                <div className="font-bold text-[13.33px]" style={{ color: '#777777' }}>{client?.name || 'Client Name'}</div>
+                <div className="text-[#777777] leading-normal text-[13px] mt-0.5 whitespace-pre-line max-w-[500px]">
                   {client?.address || 'Address not specified'}
                 </div>
-                <div className="text-slate-600 text-[12px] mt-0.5">
+                <div className="text-[#777777] text-[13px] mt-0.5">
                   State Code: {client?.stateCode || '24'} | GSTIN: {client?.gstin || 'N/A'}
                 </div>
               </div>
@@ -297,14 +297,14 @@ export default async function PrintInvoicePage({ params, searchParams }) {
           })()}
 
           {/* Place of Supply & 3-Block Payment Box */}
-          <div className="flex justify-between items-start mb-0">
+          <div className="flex justify-between items-start mb-2">
             <div className="font-medium pb-2">
-              <div className="text-slate-400 uppercase font-bold text-[11.5px] mb-0.5">PLACE OF SUPPLY</div>
-              <div className="font-medium text-slate-900 text-[13px] uppercase">{client.state || 'GUJARAT'}</div>
+              <div className="text-[#777777] uppercase font-bold text-[13px] mb-0.5">PLACE OF SUPPLY</div>
+              <div className="font-medium text-[#777777] text-[13px] uppercase">{client.state || 'GUJARAT'}</div>
             </div>
 
             <div className="w-full max-w-[400px]">
-              <div className="grid grid-cols-3 text-left overflow-hidden text-[12.5px]">
+              <div className="grid grid-cols-3 text-left overflow-hidden text-[13px]">
                 {/* Header Row */}
                 <div className="bg-[#2C3E50] text-white py-2.5 px-1 font-bold text-left" style={{ padding: '15px 15px' }}>
                   DATE<br />
@@ -324,10 +324,10 @@ export default async function PrintInvoicePage({ params, searchParams }) {
 
           {/* Line Items Table */}
           <div className="flex-1 flex flex-col mb-0">
-            <div className="flex-1 flex flex-col min-h-[240px]">
-              <table className="w-full text-left border-collapse text-[12px]">
+            <div className="flex-1 flex flex-col min-h-[300px]">
+              <table className="w-full text-left border-collapse text-[13px]">
                 <thead>
-                  <tr className="border-b border-t border-slate-400 text-slate-500 font-bold uppercase">
+                  <tr className="border-b border-t border-[#2d424d] text-[#777777] font-bold uppercase">
                     <th className="py-3 px-2 text-center w-8">NO</th>
                     <th className="py-3 px-2 w-20">HSN/SAC</th>
                     <th className="py-3 px-2">DESCRIPTION</th>
@@ -338,25 +338,25 @@ export default async function PrintInvoicePage({ params, searchParams }) {
                     <th className="py-3 px-2 text-right w-24">AMOUNT</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-200 text-slate-700 font-medium">
+                <tbody className="divide-y divide-slate-200 text-[#777777] font-medium">
                   {lineItems.map((item, idx) => (
                     <tr key={item.id} className="align-top">
-                      <td className="py-4 px-2 text-center font-medium">{idx + 1}</td>
-                      <td className="py-4 px-2 text-slate-600">{item.hsnSac || '998314'}</td>
-                      <td className="py-4 px-2">
-                        <div className="text-slate-800 font-medium leading-relaxed text-[12px] whitespace-pre-line">
+                      <td className="py-3.5 px-2 text-center font-medium">{idx + 1}</td>
+                      <td className="py-3.5 px-2 text-[#777777]">{item.hsnSac || '998314'}</td>
+                      <td className="py-3.5 px-2">
+                        <div className="text-[#777777] font-medium leading-relaxed text-[13px] whitespace-pre-line">
                           {decodeHtmlEntities(item.description || item.title || 'Services')}
                         </div>
                       </td>
-                      <td className="py-4 px-2 text-center">{item.unit || '1'}</td>
-                      <td className="py-4 px-2 text-center">{item.quantity}</td>
-                      <td className="py-4 px-2 text-right">
+                      <td className="py-3.5 px-2 text-center">{item.unit || '1'}</td>
+                      <td className="py-3.5 px-2 text-center">{item.quantity}</td>
+                      <td className="py-3.5 px-2 text-right">
                         {isExport ? '$ ' : ''}{item.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                       </td>
-                      <td className="py-4 px-2 text-right whitespace-nowrap">
+                      <td className="py-3.5 px-2 text-right whitespace-nowrap">
                         {item.taxable ? `${item.taxRate}% GST` : '0%'}
                       </td>
-                      <td className="py-4 px-2 text-right font-medium text-slate-900">
+                      <td className="py-3.5 px-2 text-right font-medium text-[#777777]">
                         {isExport ? '$ ' : ''}{(item.quantity * item.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                       </td>
                     </tr>
@@ -364,8 +364,8 @@ export default async function PrintInvoicePage({ params, searchParams }) {
                 </tbody>
               </table>
             </div>
-            {/* Bottom border always at the very bottom of the table area */}
-            <div className="border-b border-slate-700 w-full" />
+            {/* Bottom border line */}
+            <div className="border-b border-[#2d424d] w-full" />
           </div>
 
           {/* Financial Summary & Bank Details Grid */}
@@ -393,43 +393,43 @@ export default async function PrintInvoicePage({ params, searchParams }) {
             {/* Right Side: Totals & Signature */}
             <div className="col-span-5 flex flex-col justify-between items-end text-right">
               {/* Subtotals */}
-              <div className="w-full space-y-1 text-[12px]">
-                <div className="flex justify-between text-slate-600 uppercase">
+              <div className="w-full space-y-1 text-[13px] text-[#777777]">
+                <div className="flex justify-between uppercase">
                   <span className="font-bold">SUB TOTAL</span>
-                  <span className="font-medium text-slate-900">
+                  <span className="font-medium text-[#777777]">
                     {invoice.subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                   </span>
                 </div>
 
                 {invoice.cgst > 0 && (
-                  <div className="flex justify-between text-slate-600 uppercase">
+                  <div className="flex justify-between uppercase">
                     <span className="font-bold">CGST @ 9% on {invoice.subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
-                    <span className="font-medium text-slate-900">
+                    <span className="font-medium text-[#777777]">
                       {invoice.cgst.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                     </span>
                   </div>
                 )}
 
                 {invoice.sgst > 0 && (
-                  <div className="flex justify-between text-slate-600 uppercase">
+                  <div className="flex justify-between uppercase">
                     <span className="font-bold">SGST @ 9% on {invoice.subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
-                    <span className="font-medium text-slate-900">
+                    <span className="font-medium text-[#777777]">
                       {invoice.sgst.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                     </span>
                   </div>
                 )}
 
                 {invoice.igst > 0 && (
-                  <div className="flex justify-between text-slate-600 uppercase">
+                  <div className="flex justify-between uppercase">
                     <span className="font-bold">IGST @ 18% on {invoice.subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
-                    <span className="font-medium text-slate-900">
+                    <span className="font-medium text-[#777777]">
                       {invoice.igst.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                     </span>
                   </div>
                 )}
 
                 {invoice.discount > 0 && (
-                  <div className="flex justify-between text-slate-600 uppercase">
+                  <div className="flex justify-between uppercase">
                     <span className="font-bold">Discount</span>
                     <span className="font-medium text-red-600">
                       - {invoice.discount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
