@@ -1,5 +1,26 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: 'Averta';
+  src: url('/fonts/Averta-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Averta';
+  src: url('/fonts/AvertaStd-Bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Averta';
+  src: url('/fonts/Averta-Semibold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+}
+
 :root {
   --e-global-color-primary: #E94444;
   --e-global-color-secondary: #4D4D48;

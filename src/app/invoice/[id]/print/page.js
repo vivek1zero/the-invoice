@@ -226,7 +226,7 @@ export default async function PrintInvoicePage({ params, searchParams }) {
 
       <div 
         id="invoice-pdf-container"
-        style={{ fontFamily: "Arial, Helvetica, sans-serif", letterSpacing: 'normal' }}
+        style={{ fontFamily: "'Averta', sans-serif", letterSpacing: 'normal' }}
         className="bg-white text-slate-800 pb-6 px-10 max-w-[850px] mx-auto relative overflow-hidden flex flex-col min-h-[1050px]"
       >
         <TriggerPrint />
