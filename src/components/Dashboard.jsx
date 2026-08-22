@@ -2693,7 +2693,8 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                 onClick={() => setIsInvoiceModalOpen(false)}
                 className="text-slate-400 hover:text-slate-600 text-2xl font-semibold p-1"
               >
-              </div>
+                &times;
+              </button>
 
             <form onSubmit={handleInvoiceSubmit} className="overflow-y-auto pr-1 flex-1 space-y-6 text-sm">
               {invoiceFormError && (
