@@ -231,7 +231,7 @@ export default async function PrintInvoicePage({ params, searchParams }) {
           letterSpacing: 'normal',
           width: '794px',
           minHeight: '1123px',
-          padding: '22mm 7mm 10mm 15mm',
+          padding: '10mm 8mm 10mm 14mm',
           boxSizing: 'border-box'
         }}
         className="bg-[#ffffff] text-[#1e293b] mx-auto relative overflow-hidden flex flex-col justify-between"
@@ -246,7 +246,7 @@ export default async function PrintInvoicePage({ params, searchParams }) {
         )}
 
         {/* PDF Header -> ORIGINAL FOR RECIPIENT */}
-        <div className="flex justify-end mb-8 relative z-20 pt-8">
+        <div className="flex justify-end mb-3 relative z-20">
           <div className="flex flex-col items-center">
             {!isStationery ? (
               <div className="bg-[#E94444] text-[#ffffff] px-2 py-0.5 text-[12.5px] font-bold text-center">
@@ -262,7 +262,7 @@ export default async function PrintInvoicePage({ params, searchParams }) {
         </div>
 
         {/* Invoice Title & Export Details */}
-        <div className="flex justify-between items-start mb-6 relative z-10">
+        <div className="flex justify-between items-start mb-4 relative z-10">
           <div className="w-1/2">
             <h2 className="text-[20px] font-bold tracking-tight" style={{ color: themeTextHex }}>
               {isProforma ? 'Proforma Invoice' : (isExport ? 'Export Invoice' : 'Tax Invoice')} | {invoice.orderNumber || invoice.invoiceNumber}
@@ -282,7 +282,7 @@ export default async function PrintInvoicePage({ params, searchParams }) {
         </div>
 
         {/* Sliced Address (INVOICE TO) */}
-        <div className="mb-6 text-[#777777] relative z-10 leading-snug">
+        <div className="mb-4 text-[#777777] relative z-10 leading-snug">
           <div className="font-bold text-[13.33px] uppercase mb-1">INVOICE TO</div>
           {(() => {
             const first = client?.firstName ? client.firstName.trim() : '';
@@ -308,28 +308,28 @@ export default async function PrintInvoicePage({ params, searchParams }) {
         </div>
 
         {/* Place of Supply & 3-Block Payment Grid */}
-        <div className="flex justify-between items-end relative z-10">
-          <div className="w-[41%] text-[#777777] pb-3">
+        <div className="flex justify-between items-end mb-4 relative z-10">
+          <div className="w-[38%] text-[#777777] pb-2">
             <span className="font-bold text-[13.33px] uppercase block mb-0.5">PLACE OF SUPPLY</span>
             <span className="font-normal text-[13.33px] uppercase block">{client.state || 'GUJARAT'}</span>
           </div>
-          <div className="w-[58%] text-right">
+          <div className="w-[60%] flex justify-end">
             <table className="w-full border-collapse">
               <tbody>
                 <tr>
-                  <td className="text-center w-1/3 align-middle" style={{ backgroundColor: '#2d424d', color: '#fff', height: '80px', padding: '15px 12px' }}>
+                  <td className="text-left w-1/3 align-middle" style={{ backgroundColor: '#2d424d', color: '#fff', height: '76px', padding: '12px 14px' }}>
                     <div className="text-[12px] font-bold uppercase tracking-wide">DATE</div>
-                    <div className="text-[15px] font-normal mt-1">{formatDate(invoice.createdAt)}</div>
+                    <div className="text-[14px] font-normal mt-1">{formatDate(invoice.createdAt)}</div>
                   </td>
-                  <td className="text-center w-1/3 align-middle" style={{ backgroundColor: themeBgHex, color: '#fff', height: '80px', padding: '15px 12px' }}>
+                  <td className="text-left w-1/3 align-middle" style={{ backgroundColor: themeBgHex, color: '#fff', height: '76px', padding: '12px 14px' }}>
                     <div className="text-[12px] font-bold uppercase tracking-wide">PLEASE PAY</div>
-                    <div className="text-[15px] font-bold mt-1">
+                    <div className="text-[14px] font-bold mt-1">
                       {currSym === '₹' ? 'INR' : currSym} {invoice.totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                     </div>
                   </td>
-                  <td className="text-center w-1/3 align-middle" style={{ backgroundColor: '#2d424d', color: '#fff', height: '80px', padding: '15px 12px' }}>
+                  <td className="text-left w-1/3 align-middle" style={{ backgroundColor: '#2d424d', color: '#fff', height: '76px', padding: '12px 14px' }}>
                     <div className="text-[12px] font-bold uppercase tracking-wide">DUE DATE</div>
-                    <div className="text-[15px] font-normal mt-1">{formatDate(invoice.dueDate || invoice.createdAt)}</div>
+                    <div className="text-[14px] font-normal mt-1">{formatDate(invoice.dueDate || invoice.createdAt)}</div>
                   </td>
                 </tr>
               </tbody>
