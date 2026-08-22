@@ -20,62 +20,45 @@ export async function GET() {
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { invoiceNumber, orderNumber, clientId, status, domesticExport, dueDate, lineItems, discount, currency, currencySymbol, lutArn, taxRule } = body;
+    const { invoiceNumber, orderNumber, title, clientId, status, domesticExport, currency, currencySymbol, taxRule, lutArn, createdAt, dueDate, discount, lineItems } = body;
 
-    if (!invoiceNumber || !clientId || !lineItems || lineItems.length === 0) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    if (!clientId || !lineItems || lineItems.length === 0) {
+      return NextResponse.json({ error: 'Client and at least one line item are required.' }, { status: 400 });
     }
 
-    // 1. Fetch the client to determine the state for GST math
-    const client = await prisma.client.findUnique({
-      where: { id: clientId }
-    });
-
+    const client = await prisma.client.findUnique({ where: { id: clientId } });
     if (!client) {
-      return NextResponse.json({ error: 'Client not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Client not found.' }, { status: 404 });
     }
 
-    // 2. Perform financial calculations
+    // 1. Calculate Subtotals and Taxes
     let subtotal = 0;
     lineItems.forEach(item => {
       const itemQty = parseFloat(item.quantity) || 0;
       const itemAmount = parseFloat(item.amount) || 0;
-      const adjustPercent = parseFloat(item.adjustPercent) || 0;
-      const itemSubtotal = itemQty * itemAmount;
-      const itemDiscount = itemSubtotal * (adjustPercent / 100);
-      subtotal += itemSubtotal - itemDiscount;
+      subtotal += itemQty * itemAmount;
     });
 
-    // Zero Designs is located in Gujarat, India (State Code: 24)
-    const isLocalState = client.state.toLowerCase().trim() === 'gujarat';
-    const isExport = domesticExport === 'Export' || client.state.toLowerCase().includes('export') || client.state.toLowerCase().includes('foreign');
+    const isExport = domesticExport === 'Export' || currency === 'USD';
+    const clientStateCode = client.stateCode || '24';
+    const isLocalState = clientStateCode === '24';
 
-    let cgst = 0;
-    let sgst = 0;
-    let igst = 0;
-
-    if (taxRule === 'None') {
-      cgst = 0;
-      sgst = 0;
-      igst = 0;
-    } else if (taxRule === 'IGST') {
-      cgst = 0;
-      sgst = 0;
-      igst = subtotal * 0.18;
+    let cgst = 0, sgst = 0, igst = 0;
+    if (taxRule === 'IGST') {
+      igst = isExport ? 0 : subtotal * 0.18;
     } else if (taxRule === 'CGST_SGST') {
-      cgst = subtotal * 0.09;
-      sgst = subtotal * 0.09;
-      igst = 0;
+      cgst = isExport ? 0 : subtotal * 0.09;
+      sgst = isExport ? 0 : subtotal * 0.09;
+    } else if (taxRule === 'None') {
+      cgst = 0; sgst = 0; igst = 0;
     } else {
-      // Auto logic
+      // Auto
       if (!isExport) {
         if (isLocalState) {
-          // Split into 9% CGST and 9% SGST (18% total tax)
           cgst = subtotal * 0.09;
           sgst = subtotal * 0.09;
           igst = 0;
         } else {
-          // 18% IGST for interstate
           cgst = 0;
           sgst = 0;
           igst = subtotal * 0.18;
@@ -111,6 +94,7 @@ export async function POST(request) {
         currencySymbol: currencySymbol || '₹',
         taxRule: taxRule || 'Auto',
         lutArn: finalLutArn,
+        createdAt: createdAt ? new Date(createdAt) : undefined,
         dueDate: dueDate ? new Date(dueDate) : null,
         lineItems: {
           create: lineItems.map(item => ({

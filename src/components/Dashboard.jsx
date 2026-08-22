@@ -298,6 +298,7 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
     currency: 'INR',
     currencySymbol: '₹',
     taxRule: 'Auto',
+    createdAt: new Date().toISOString().split('T')[0],
     dueDate: '',
     discount: 0,
     lineItems: [{ hsnSac: '998314', title: '', description: '', unit: '1', quantity: 1, amount: 0, adjustPercent: 0 }]
@@ -1039,6 +1040,7 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
       currencySymbol: inv.currencySymbol || '₹',
       taxRule: inv.taxRule || 'Auto',
       lutArn: inv.lutArn || '',
+      createdAt: inv.createdAt ? new Date(inv.createdAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
       dueDate: inv.dueDate ? new Date(inv.dueDate).toISOString().split('T')[0] : '',
       discount: inv.discount || 0,
       lineItems: inv.lineItems.map(item => ({
@@ -1302,7 +1304,7 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
             <button
               onClick={() => {
                 setInvoiceForm({
-                  invoiceNumber: '', orderNumber: '', clientId: '', status: 'DRAFT', domesticExport: 'Domestic', currency: 'INR', currencySymbol: '₹', taxRule: 'Auto', dueDate: '', discount: 0, lineItems: [{ hsnSac: '998314', title: '', description: '', unit: '1', quantity: 1, amount: 0, adjustPercent: 0 }]
+                  invoiceNumber: '', orderNumber: '', title: '', clientId: '', status: 'DRAFT', domesticExport: 'Domestic', currency: 'INR', currencySymbol: '₹', taxRule: 'Auto', createdAt: new Date().toISOString().split('T')[0], dueDate: '', discount: 0, lineItems: [{ hsnSac: '998314', title: '', description: '', unit: '1', quantity: 1, amount: 0, adjustPercent: 0 }]
                 });
                 setIsInvoiceModalOpen(true);
               }}
@@ -2861,12 +2863,24 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                 </div>
 
                 <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Invoice Date (Start Date)</label>
+                  <input
+                    type="date"
+                    value={invoiceForm.createdAt || ''}
+                    onClick={(e) => e.target.showPicker && e.target.showPicker()}
+                    onChange={(e) => setInvoiceForm({ ...invoiceForm, createdAt: e.target.value })}
+                    className="w-full p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none text-slate-800 bg-white font-medium cursor-pointer"
+                  />
+                </div>
+
+                <div>
                   <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Due Date</label>
                   <input
                     type="date"
-                    value={invoiceForm.dueDate}
+                    value={invoiceForm.dueDate || ''}
+                    onClick={(e) => e.target.showPicker && e.target.showPicker()}
                     onChange={(e) => setInvoiceForm({ ...invoiceForm, dueDate: e.target.value })}
-                    className="w-full p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none text-slate-800 bg-white"
+                    className="w-full p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none text-slate-800 bg-white font-medium cursor-pointer"
                   />
                 </div>
               </div>

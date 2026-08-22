@@ -20,7 +20,7 @@ export async function PUT(request, { params }) {
   try {
     const { id } = await params;
     const body = await request.json();
-    const { invoiceNumber, orderNumber, clientId, status, domesticExport, dueDate, lineItems, discount, currency, currencySymbol, lutArn, taxRule } = body;
+    const { invoiceNumber, orderNumber, title, clientId, status, domesticExport, currency, currencySymbol, taxRule, lutArn, createdAt, dueDate, discount, lineItems } = body;
 
     if (!invoiceNumber || !clientId || !lineItems || lineItems.length === 0) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -114,6 +114,7 @@ export async function PUT(request, { params }) {
           currencySymbol: currencySymbol || '₹',
           taxRule: taxRule || 'Auto',
           lutArn: finalLutArn,
+          createdAt: createdAt ? new Date(createdAt) : undefined,
           dueDate: dueDate ? new Date(dueDate) : null,
           lineItems: {
             create: lineItems.map(item => ({
