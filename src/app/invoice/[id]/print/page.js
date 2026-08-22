@@ -240,8 +240,18 @@ export default async function PrintInvoicePage({ params, searchParams }) {
 
         {/* Central Background Watermark (zero-symbol) - ONLY shown on Full Digital PDF */}
         {!isStationery && (
-          <div className="absolute inset-0 pointer-events-none flex items-center justify-center z-0 opacity-[0.04]">
-            <img src="/zero-symbol-1.svg" alt="Watermark" className="w-[480px] h-[480px] object-contain" />
+          <div 
+            className="absolute inset-0 pointer-events-none flex items-center justify-center z-0"
+            style={{ opacity: 0.06 }}
+          >
+            <svg 
+              viewBox="0 0 649.88 649.88" 
+              style={{ width: '460px', height: '460px' }}
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path fill="#2d424d" d="M636.11,1185.92a323.79,323.79,0,0,0-108.64,51.78,203.38,203.38,0,0,1,34-12.37c108.36-28.63,219.41,36,248,144.36s-36,219.41-144.35,248-219.41-36-248.05-144.35a202.28,202.28,0,0,1-4.75-80.5A323.31,323.31,0,0,0,405,1583c45.83,173.46,223.61,276.92,397.07,231.08S1079,1590.47,1033.18,1417,809.57,1140.08,636.11,1185.92Z" transform="translate(-394.17 -1175.06)"/>
+              <path fill="#2d424d" d="M561.17,1458.39a81.14,81.14,0,0,1,160.28-17.82,121.82,121.82,0,1,0-97.37,97A81.14,81.14,0,0,1,561.17,1458.39Z" transform="translate(-394.17 -1175.06)"/>
+            </svg>
           </div>
         )}
 
