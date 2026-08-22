@@ -31,6 +31,40 @@ export default function PrintToolbar({ isStationery, pdfTitle }) {
   const zoomOut = useCallback(() => setZoom(z => Math.max(50, z - 10)), []);
   const resetZoom = useCallback(() => setZoom(100), []);
 
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  // Direct 1-click PDF download to computer
+  const handleDownloadPdf = async () => {
+    setIsDownloading(true);
+    try {
+      if (!window.html2pdf) {
+        await new Promise((resolve, reject) => {
+          const script = document.createElement('script');
+          script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+          script.onload = resolve;
+          script.onerror = reject;
+          document.head.appendChild(script);
+        });
+      }
+
+      const element = document.getElementById('invoice-pdf-container');
+      const opt = {
+        margin: [10, 10, 10, 10],
+        filename: `${pdfTitle || 'invoice'}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+
+      await window.html2pdf().set(opt).from(element).save();
+    } catch (err) {
+      console.error('Direct PDF download failed, falling back to print dialog:', err);
+      window.print();
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
   if (collapsed) {
     return (
       <div
@@ -45,11 +79,12 @@ export default function PrintToolbar({ isStationery, pdfTitle }) {
           <button onClick={zoomIn} className="w-6 h-6 flex items-center justify-center text-slate-400 hover:text-white text-base font-bold transition-colors" title="Zoom In">+</button>
           <div className="w-px h-4 bg-slate-700 mx-1" />
           <button
-            onClick={() => window.print()}
-            className="text-xs font-bold text-[#E94444] hover:text-red-400 transition-colors px-1"
-            title="Print / Save as PDF"
+            onClick={handleDownloadPdf}
+            disabled={isDownloading}
+            className="text-xs font-bold text-emerald-400 hover:text-emerald-300 transition-colors px-1 flex items-center gap-1"
+            title="Download PDF directly"
           >
-            Print
+            {isDownloading ? 'Saving...' : 'Download'}
           </button>
           <div className="w-px h-4 bg-slate-700 mx-1" />
           <button
@@ -84,7 +119,7 @@ export default function PrintToolbar({ isStationery, pdfTitle }) {
             {isStationery ? 'Stationery PDF — No Header / Footer' : 'Full Invoice PDF — With Header & Footer'}
           </p>
           <p className="text-slate-500 text-[10px] leading-tight mt-0.5 hidden sm:block">
-            Print / Save as PDF → choose &quot;Save as PDF&quot; as destination
+            1-Click Download or Print / Save to your local computer
           </p>
         </div>
       </div>
@@ -131,14 +166,19 @@ export default function PrintToolbar({ isStationery, pdfTitle }) {
 
         {/* Direct Download PDF Button */}
         <button
-          onClick={() => window.print()}
-          className="px-4 py-1.5 bg-[#059669] hover:bg-[#047857] text-white text-xs font-bold rounded-lg flex items-center gap-1.5 transition-colors shadow-md"
-          title="Save / Download PDF file directly to your system"
+          onClick={handleDownloadPdf}
+          disabled={isDownloading}
+          className="px-4 py-1.5 bg-[#059669] hover:bg-[#047857] disabled:opacity-50 text-white text-xs font-bold rounded-lg flex items-center gap-1.5 transition-colors shadow-md cursor-pointer"
+          title="Download PDF directly to your computer"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3.5 h-3.5">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
-          </svg>
-          Download PDF
+          {isDownloading ? (
+            <span className="inline-block w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+          ) : (
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3.5 h-3.5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+            </svg>
+          )}
+          {isDownloading ? 'Downloading...' : 'Download PDF'}
         </button>
 
         {/* Print PDF */}

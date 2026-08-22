@@ -2947,9 +2947,8 @@ export default function Dashboard({ initialInvoices, initialCertificates }) {
                               const selected = servicePresetsList.find(p => p.hsnSac === val || p.label === val);
                               if (selected) {
                                 handleLineItemChange(index, 'hsnSac', selected.hsnSac);
-                                if (!item.title) {
-                                  handleLineItemChange(index, 'title', selected.title);
-                                }
+                                handleLineItemChange(index, 'title', selected.title);
+                                handleLineItemChange(index, 'description', selected.title);
                               }
                             }}
                             className="w-full p-2 border border-slate-300 rounded-lg text-xs bg-slate-50 text-slate-800 font-medium focus:ring-2 focus:ring-[#E94444]/20 focus:border-[#E94444] outline-none"
