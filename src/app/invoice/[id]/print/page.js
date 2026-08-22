@@ -255,34 +255,52 @@ export default async function PrintInvoicePage({ params, searchParams }) {
           </div>
         )}
 
-        {/* PDF Header -> ORIGINAL FOR RECIPIENT */}
-        <div className="flex justify-end mb-6 relative z-20 pt-0">
-          <div className="flex flex-col items-center">
+        {/* PDF Header -> top-right, badge flush to top edge */}
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '0', position: 'relative', zIndex: 20 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             {!isStationery ? (
-              <div className="bg-[#E94444] text-[#ffffff] px-4 py-2 text-[13.33px] font-bold text-center leading-none flex items-center justify-center">
+              <div style={{
+                backgroundColor: '#E94444',
+                color: '#ffffff',
+                padding: '7px 18px',
+                fontSize: '13.33px',
+                fontWeight: 'bold',
+                display: 'inline-block',
+                lineHeight: '1.2'
+              }}>
                 www.zerodesigns.in
               </div>
             ) : (
-              <div className="h-[28px]" />
+              <div style={{ height: '30px' }} />
             )}
-            <div className="text-[12px] text-[#777777] font-normal uppercase text-center mt-1.5 tracking-normal">
+            <div style={{
+              fontSize: '11px',
+              color: '#777777',
+              textTransform: 'uppercase',
+              textAlign: 'center',
+              marginTop: '6px',
+              letterSpacing: '0.5px'
+            }}>
               ORIGINAL FOR RECIPIENT
             </div>
           </div>
         </div>
 
-        {/* Invoice Title & Export Details */}
-        <div className="flex justify-between items-start mb-4 relative z-10">
-          <div className="w-1/2">
-            <h2 className="text-[20px] font-bold tracking-tight" style={{ color: themeTextHex }}>
+        {/* Large gap between header and title — exactly as in reference */}
+        <div style={{ height: '48px' }} />
+
+        {/* Invoice Title */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px', position: 'relative', zIndex: 10 }}>
+          <div style={{ width: '50%' }}>
+            <h2 style={{ fontSize: '20px', fontWeight: 'bold', margin: 0, color: themeTextHex, letterSpacing: '-0.3px' }}>
               {isProforma ? 'Proforma Invoice' : (isExport ? 'Export Invoice' : 'Tax Invoice')} | {invoice.orderNumber || invoice.invoiceNumber}
             </h2>
           </div>
-          <div className="w-1/2 text-right text-[#777777]">
+          <div style={{ width: '50%', textAlign: 'right', color: '#777777' }}>
             {isExport && (
               <>
-                <div className="font-bold text-[12px] uppercase text-[#334155]">LUT ARN No.: {invoice.lutArn || settings.business_lut_arn}</div>
-                <div className="text-[11px] leading-snug mt-0.5">
+                <div style={{ fontWeight: 'bold', fontSize: '12px', textTransform: 'uppercase', color: '#334155' }}>LUT ARN No.: {invoice.lutArn || settings.business_lut_arn}</div>
+                <div style={{ fontSize: '11px', lineHeight: 1.4, marginTop: '2px' }}>
                   Supply Meant for Export Under Bond of Letter of Understanding<br/>
                   without Payment of Integrated Tax (IGST)
                 </div>
@@ -291,9 +309,9 @@ export default async function PrintInvoicePage({ params, searchParams }) {
           </div>
         </div>
 
-        {/* Sliced Address (INVOICE TO) */}
-        <div className="mb-5 text-[#777777] relative z-10 leading-snug">
-          <div className="font-bold text-[13.33px] uppercase mb-1">INVOICE TO</div>
+        {/* INVOICE TO + Address — tight stacking, no extra gaps */}
+        <div style={{ marginBottom: '20px', color: '#777777', position: 'relative', zIndex: 10 }}>
+          <div style={{ fontWeight: 'bold', fontSize: '13.33px', textTransform: 'uppercase', marginBottom: '2px', color: '#777777' }}>INVOICE TO</div>
           {(() => {
             const first = client?.firstName ? client.firstName.trim() : '';
             const last = client?.lastName ? client.lastName.trim() : '';
@@ -301,15 +319,15 @@ export default async function PrintInvoicePage({ params, searchParams }) {
             const contactName = fullName || client?.contactPerson || '';
 
             return (
-              <div className="sliced-address text-[13.33px] space-y-0.5">
+              <div style={{ fontSize: '13.33px', lineHeight: '1.55' }}>
                 {contactName && (
-                  <div className="text-[#777777] font-normal">{contactName}</div>
+                  <div style={{ color: '#777777', fontWeight: 'normal' }}>{contactName}</div>
                 )}
-                <div className="font-bold text-[#777777] uppercase">{client?.name || 'Client Name'}</div>
-                <div className="text-[#777777] font-normal whitespace-pre-line leading-relaxed">
+                <div style={{ fontWeight: 'bold', color: '#777777', textTransform: 'uppercase' }}>{client?.name || 'Client Name'}</div>
+                <div style={{ color: '#777777', fontWeight: 'normal', whiteSpace: 'pre-line' }}>
                   {client?.address || 'Address not specified'}
                 </div>
-                <div className="text-[#777777] font-normal pt-0.5">
+                <div style={{ color: '#777777', fontWeight: 'normal' }}>
                   State Code: {client?.stateCode || '24'} | GSTIN: {client?.gstin || 'N/A'}
                 </div>
               </div>
