@@ -2,6 +2,7 @@ import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import TriggerPrint from './TriggerPrint';
 import PrintToolbar from './PrintToolbar';
+import SignatureSvg from './SignatureSvg';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -104,8 +105,8 @@ export default async function PrintInvoicePage({ params, searchParams }) {
 
   const isProforma = invoice.status === 'PROFORMA';
   const isExport = invoice.domesticExport === 'Export';
-  const themeBgHex = isProforma ? '#3B82F6' : (isExport ? '#059669' : '#E94444');
-  const themeTextHex = isProforma ? '#3B82F6' : (isExport ? '#059669' : '#E94444');
+  const themeBgHex = isProforma ? '#3B82F6' : (isExport ? '#00ae9f' : '#E94444');
+  const themeTextHex = isProforma ? '#3B82F6' : (isExport ? '#00ae9f' : '#e94444');
 
   const formatDate = (dateObj) => {
     if (!dateObj) return '';
@@ -256,14 +257,14 @@ export default async function PrintInvoicePage({ params, searchParams }) {
         )}
 
         {/* PDF Header -> top-right, badge flush to top edge */}
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '0', position: 'relative', zIndex: 20 }}>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px', position: 'relative', zIndex: 20 }}>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             {!isStationery ? (
               <div style={{
                 backgroundColor: '#E94444',
                 color: '#ffffff',
-                padding: '7px 18px',
-                fontSize: '13.33px',
+                padding: '12px 28px',
+                fontSize: '18px',
                 fontWeight: 'bold',
                 display: 'inline-block',
                 lineHeight: '1.2'
@@ -271,14 +272,14 @@ export default async function PrintInvoicePage({ params, searchParams }) {
                 www.zerodesigns.in
               </div>
             ) : (
-              <div style={{ height: '30px' }} />
+              <div style={{ height: '40px' }} />
             )}
             <div style={{
-              fontSize: '11px',
+              fontSize: '14px',
               color: '#777777',
               textTransform: 'uppercase',
               textAlign: 'center',
-              marginTop: '6px',
+              marginTop: '8px',
               letterSpacing: '0.5px'
             }}>
               ORIGINAL FOR RECIPIENT
@@ -333,31 +334,29 @@ export default async function PrintInvoicePage({ params, searchParams }) {
               </div>
             );
           })()}
-        </div>
-
-        {/* Place of Supply & 3-Block Payment Grid - Aligned with the top of the 3 boxes */}
-        <div className="flex justify-between items-start mb-0 relative z-10">
-          <div className="w-[38%] text-[#777777] pt-2">
-            <span className="font-bold text-[13.33px] uppercase block mb-0.5">PLACE OF SUPPLY</span>
-            <span className="font-normal text-[13.33px] uppercase block">{client.state || 'GUJARAT'}</span>
+                {/* SECTION 4: Place of Supply & 3-Block Payment Grid */}
+        <div className="flex justify-between items-start mb-0 relative z-10" style={{ marginTop: '20px' }}>
+          <div className="w-[41.66%]" style={{ color: '#777', fontSize: '13.3333px', paddingTop: '20px' }}>
+            <span className="font-bold uppercase block mb-0.5" style={{ fontSize: '11px', letterSpacing: '0.5px' }}>PLACE OF SUPPLY</span>
+            <span className="font-normal uppercase block" style={{ fontSize: '13.3333px' }}>{client.state || 'GUJARAT'}</span>
           </div>
-          <div className="w-[60%] flex justify-end">
-            <table className="w-full border-collapse">
+          <div className="w-[58.33%] flex justify-end">
+            <table className="w-full border-collapse" style={{ tableLayout: 'fixed' }}>
               <tbody>
                 <tr>
-                  <td className="text-left w-1/3 align-middle" style={{ backgroundColor: '#2d424d', color: '#fff', height: '76px', padding: '12px 14px' }}>
-                    <div className="text-[12px] font-bold uppercase tracking-wide">DATE</div>
-                    <div className="text-[14px] font-normal mt-1">{formatDate(invoice.createdAt)}</div>
+                  <td className="align-middle" style={{ backgroundColor: '#2d424d', color: '#fff', height: '80px', padding: '10px 15px', width: '33.33%', textAlign: 'left', fontSize: '16px' }}>
+                    <div className="font-bold uppercase tracking-wide" style={{ fontSize: '11px', letterSpacing: '0.5px' }}>DATE</div>
+                    <div className="font-normal mt-1">{formatDate(invoice.createdAt)}</div>
                   </td>
-                  <td className="text-left w-1/3 align-middle" style={{ backgroundColor: themeBgHex, color: '#fff', height: '76px', padding: '12px 14px' }}>
-                    <div className="text-[12px] font-bold uppercase tracking-wide">PLEASE PAY</div>
-                    <div className="text-[14px] font-bold mt-1">
+                  <td className="align-middle" style={{ backgroundColor: themeBgHex, color: '#fff', height: '80px', padding: '10px 15px', width: '33.33%', textAlign: 'left', fontSize: '16px' }}>
+                    <div className="font-bold uppercase tracking-wide" style={{ fontSize: '11px', letterSpacing: '0.5px' }}>PLEASE PAY</div>
+                    <div className="font-bold mt-1">
                       {currSym === '₹' ? 'INR' : currSym} {invoice.totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                     </div>
                   </td>
-                  <td className="text-left w-1/3 align-middle" style={{ backgroundColor: '#2d424d', color: '#fff', height: '76px', padding: '12px 14px' }}>
-                    <div className="text-[12px] font-bold uppercase tracking-wide">DUE DATE</div>
-                    <div className="text-[14px] font-normal mt-1">{formatDate(invoice.dueDate || invoice.createdAt)}</div>
+                  <td className="align-middle" style={{ backgroundColor: '#2d424d', color: '#fff', height: '80px', padding: '10px 15px', width: '33.33%', textAlign: 'left', fontSize: '16px' }}>
+                    <div className="font-bold uppercase tracking-wide" style={{ fontSize: '11px', letterSpacing: '0.5px' }}>DUE DATE</div>
+                    <div className="font-normal mt-1">{formatDate(invoice.dueDate || invoice.createdAt)}</div>
                   </td>
                 </tr>
               </tbody>
@@ -365,61 +364,67 @@ export default async function PrintInvoicePage({ params, searchParams }) {
           </div>
         </div>
 
-        {/* Line Items Table */}
-        <div className="flex-1 flex flex-col mb-4 relative z-10" style={{ minHeight: '340px' }}>
-          <table className="w-full text-left border-collapse">
+        {/* SECTION 5: Line Items Table */}
+        <div className="flex flex-col mb-3 relative z-10" style={{ height: '340px' }}>
+          <table className="w-full text-left border-collapse" style={{ tableLayout: 'fixed' }}>
             <thead>
-              <tr className="text-[#777777]">
-                <th className="py-2 px-2 text-left font-bold text-[12px] w-8 border-y border-[#2d424d]">NO</th>
-                <th className="py-2 px-2 text-left font-bold text-[12px] w-16 border-y border-[#2d424d]">HSN/SAC</th>
-                <th className="py-2 px-2 text-left font-bold text-[12px] border-y border-[#2d424d]">DESCRIPTION</th>
-                <th className="py-2 px-2 text-center font-bold text-[12px] w-12 border-y border-[#2d424d]">UNIT</th>
-                <th className="py-2 px-2 text-center font-bold text-[12px] w-16 border-y border-[#2d424d]">HRS/QTY</th>
-                <th className="py-2 px-2 text-right font-bold text-[12px] w-20 border-y border-[#2d424d]">RATE</th>
-                <th className="py-2 px-2 text-center font-bold text-[12px] w-12 border-y border-[#2d424d]">TAX</th>
-                <th className="py-2 px-2 text-right font-bold text-[12px] w-24 border-y border-[#2d424d]">AMOUNT</th>
+              <tr style={{ color: '#666', borderTop: '1px solid #2F444E', borderBottom: '1px solid #2F444E', backgroundColor: '#fff' }}>
+                <th className="font-bold uppercase" style={{ width: '45px', fontSize: '10pt', padding: '8px 10px' }}>NO</th>
+                <th className="font-bold uppercase" style={{ width: '75px', fontSize: '10pt', padding: '8px 10px' }}>HSN/SAC</th>
+                <th className="font-bold uppercase" style={{ fontSize: '10pt', padding: '8px 10px' }}>DESCRIPTION</th>
+                <th className="font-bold uppercase text-center" style={{ width: '55px', fontSize: '10pt', padding: '8px 10px' }}>UNIT</th>
+                <th className="font-bold uppercase text-center" style={{ width: '75px', fontSize: '10pt', padding: '8px 10px' }}>HRS/QTY</th>
+                <th className="font-bold uppercase text-right" style={{ width: '90px', fontSize: '10pt', padding: '8px 10px' }}>RATE</th>
+                <th className="font-bold uppercase text-center" style={{ width: '80px', fontSize: '10pt', padding: '8px 10px' }}>TAX</th>
+                <th className="font-bold uppercase text-right" style={{ width: '105px', fontSize: '10pt', padding: '8px 10px' }}>AMOUNT</th>
               </tr>
             </thead>
-            <tbody className="text-[#777777] text-[13.33px]">
-              {lineItems.map((item, idx) => (
-                <tr key={item.id} className="align-top border-b border-transparent">
-                  <td className="pt-3 px-2 text-left font-normal">{idx + 1}</td>
-                  <td className="pt-3 px-2 text-left font-normal">{item.hsnSac || '998314'}</td>
-                  <td className="pt-3 px-2">
-                    <div className="whitespace-pre-line leading-relaxed font-normal">{decodeHtmlEntities(item.description || item.title || 'Services')}</div>
-                  </td>
-                  <td className="pt-3 px-2 text-center font-normal">{item.unit || ''}</td>
-                  <td className="pt-3 px-2 text-center font-normal">{item.quantity}</td>
-                  <td className="pt-3 px-2 text-right font-normal">
-                    {item.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-                  </td>
-                  <td className="pt-3 px-2 text-center whitespace-nowrap font-normal">
-                    NA
-                  </td>
-                  <td className="pt-3 px-2 text-right font-normal">
-                    {(item.quantity * item.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-                  </td>
-                </tr>
-              ))}
+            <tbody style={{ color: '#777', fontSize: '13.3333px' }}>
+              {lineItems.map((item, idx) => {
+                const taxLabel = invoice.igst > 0 
+                  ? '18% GST' 
+                  : ((invoice.cgst > 0 || invoice.sgst > 0) ? '18% GST' : 'NA');
+
+                return (
+                  <tr key={item.id} className="align-top border-b border-transparent">
+                    <td className="font-normal" style={{ padding: '12px 10px' }}>{idx + 1}</td>
+                    <td className="font-normal" style={{ padding: '12px 10px' }}>{item.hsnSac || '998314'}</td>
+                    <td style={{ padding: '12px 10px' }}>
+                      <div className="whitespace-pre-line leading-relaxed font-normal pr-4">{decodeHtmlEntities(item.description || item.title || 'Services')}</div>
+                    </td>
+                    <td className="text-center font-normal" style={{ padding: '12px 10px' }}>{item.unit || ''}</td>
+                    <td className="text-center font-normal" style={{ padding: '12px 10px' }}>{item.quantity}</td>
+                    <td className="text-right font-normal" style={{ padding: '12px 10px' }}>
+                      {item.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                    </td>
+                    <td className="text-center whitespace-nowrap font-normal" style={{ padding: '12px 10px' }}>
+                      {taxLabel}
+                    </td>
+                    <td className="text-right font-normal" style={{ padding: '12px 10px' }}>
+                      {(item.quantity * item.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
-          <div className="border-b border-[#2d424d] w-full mt-auto pt-4" />
+          <div className="w-full mt-auto" style={{ borderBottom: '1px solid #2F444E', paddingTop: '20px' }} />
         </div>
 
         {/* Totals & Bank Details Grid */}
-        <div className="flex justify-between items-start pt-3 relative z-10 text-[13.33px] text-[#777777]">
+        <div className="flex justify-between items-start pt-3 relative z-10" style={{ fontSize: '13.3333px', color: '#777' }}>
           {/* Bank Details (Left) */}
-          <div className="w-1/2 pr-6">
+          <div className="w-[45%] pr-6">
             <div className="mb-4">
-              <div className="font-bold mb-0.5 text-[#777777]">Bank Details:</div>
-              <div className="whitespace-pre-line leading-snug font-normal">
+              <div className="font-bold mb-0.5" style={{ color: '#777', fontSize: '13.3333px' }}>Bank Details:</div>
+              <div className="whitespace-pre-line font-normal" style={{ fontSize: '13.3333px', lineHeight: '1.45' }}>
                 {cleanBankDetail}
               </div>
             </div>
 
             <div>
-              <div className="font-bold mb-0.5 text-[#777777]">For, US Dollar Remittances - USD</div>
-              <div className="whitespace-pre-line leading-snug font-normal">
+              <div className="font-bold mb-0.5" style={{ color: '#777', fontSize: '13.3333px' }}>For, US Dollar Remittances - USD</div>
+              <div className="whitespace-pre-line font-normal" style={{ fontSize: '13.3333px', lineHeight: '1.45' }}>
                 Correspondent Bank Details<br />
                 J P MORGAN CHASE BANK,NEW YORK.<br />
                 US SWIFT Code: CHASUS33XXX
@@ -428,78 +433,88 @@ export default async function PrintInvoicePage({ params, searchParams }) {
           </div>
 
           {/* Totals & Signature (Right) */}
-          <div className="w-1/2 flex flex-col items-end text-right">
+          <div className="w-[55%] flex flex-col items-end text-right">
             <div className="w-full max-w-[340px] mb-4">
-              <div className="flex justify-between py-1">
-                <span className="font-bold">SUB TOTAL</span>
-                <span className="font-normal">{invoice.subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+              <div className="flex justify-between py-1" style={{ paddingTop: '15px' }}>
+                <span className="font-bold" style={{ fontSize: '13.3333px' }}>SUB TOTAL</span>
+                <span className="font-normal" style={{ fontSize: '13.3333px' }}>{invoice.subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
               </div>
               {invoice.cgst > 0 && (
                 <div className="flex justify-between py-1">
-                  <span className="font-bold">CGST @ 9% on {invoice.subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
-                  <span className="font-normal">{invoice.cgst.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                  <span className="font-bold" style={{ fontSize: '13.3333px' }}>CGST @ 9% on {invoice.subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                  <span className="font-normal" style={{ fontSize: '13.3333px' }}>{invoice.cgst.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
                 </div>
               )}
               {invoice.sgst > 0 && (
                 <div className="flex justify-between py-1">
-                  <span className="font-bold">SGST @ 9% on {invoice.subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
-                  <span className="font-normal">{invoice.sgst.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                  <span className="font-bold" style={{ fontSize: '13.3333px' }}>SGST @ 9% on {invoice.subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                  <span className="font-normal" style={{ fontSize: '13.3333px' }}>{invoice.sgst.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
                 </div>
               )}
               {invoice.igst > 0 && (
                 <div className="flex justify-between py-1">
-                  <span className="font-bold">IGST @ 18% on {invoice.subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
-                  <span className="font-normal">{invoice.igst.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                  <span className="font-bold" style={{ fontSize: '13.3333px' }}>IGST @ 18% on {invoice.subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                  <span className="font-normal" style={{ fontSize: '13.3333px' }}>{invoice.igst.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
                 </div>
               )}
               {invoice.discount > 0 && (
                 <div className="flex justify-between py-1">
-                  <span className="font-bold">Discount</span>
-                  <span className="text-[#dc2626] font-normal">- {invoice.discount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                  <span className="font-bold" style={{ fontSize: '13.3333px' }}>Discount</span>
+                  <span className="text-[#dc2626] font-normal" style={{ fontSize: '13.3333px' }}>- {invoice.discount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
                 </div>
               )}
               
-              <div className="mt-2 bg-[#2C3E50] text-[#ffffff] flex justify-between px-3.5 py-2.5 min-h-[44px] font-bold items-center">
-                <span style={{ fontSize: '15px', lineHeight: 1 }}>Total Due</span>
-                <span style={{ fontSize: '18px', lineHeight: 1 }}>
+              <div className="total-due-bar mt-2 flex justify-between items-center font-bold" style={{ backgroundColor: '#2e4151', color: '#ffffff', padding: '10px 10px', minHeight: '46px' }}>
+                <span style={{ fontSize: '10pt', display: 'flex', alignItems: 'center', textTransform: 'uppercase' }}>Total Due</span>
+                <span style={{ fontSize: '20px', display: 'flex', alignItems: 'center' }}>
                   {currSym === '₹' ? 'INR' : currSym} {invoice.totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                 </span>
               </div>
             </div>
 
-            {/* Authorised Signatory */}
-            <div className="text-right mt-2 text-[13.33px] text-[#777777] font-medium leading-relaxed w-full max-w-[340px]">
+            {/* THANKYOU + For Zero Designs + Signature */}
+            <div className="text-right text-[13.3333px] text-[#777] font-medium w-full max-w-[340px]" style={{ lineHeight: '1.6' }}>
               THANKYOU.<br />
-              For Zero Designs Private Limited<br />
-              
-              <div className="h-[60px] my-1 flex justify-end items-center">
-                {!isStationery ? (
-                  <img src="/signature.svg" alt="Signature" className="h-10 object-contain" />
-                ) : null}
-              </div>
-              
-              Authorised Signatory
+              For Zero Designs Private Limited
+
+              {/* Signature — sits between "For Zero Designs" and "Authorised Signatory" */}
+              {!isStationery && (
+                <div style={{ height: '90px', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', margin: '4px 0' }}>
+                  <SignatureSvg style={{ width: '160px', height: '90px', display: 'block' }} />
+                </div>
+              )}
+              {isStationery && <div style={{ height: '90px' }} />}
             </div>
           </div>
         </div>
 
-        {/* Footer Info (Only for non-stationery) */}
+        {/* Footer: matches reference — ZERO DESIGNS PVT. LTD. aligned with Authorised Signatory */}
         {!isStationery && (
-          <footer className="mt-8 flex justify-end items-start text-[10.5px] text-[#777777] relative z-10">
-            <div className="flex items-start gap-4 text-right">
-              <div className="space-y-0.5 leading-snug">
-                <div className="font-bold text-[#1e293b] uppercase text-[11.5px]">{settings.business_name}</div>
-                <div className="whitespace-pre-line">{cleanAddress}</div>
-                {cleanExtraInfo && (
-                  <div className="font-semibold">{cleanExtraInfo}</div>
-                )}
-                <div className="text-[#94a3b8] font-semibold uppercase mt-0.5">SUBJECT TO AHMEDABAD JURISDICATION</div>
+          <footer className="mt-4 flex items-start text-[10.5px] text-[#777777] relative z-10">
+
+            {/* Left/center block: business name + address (text-right to align with totals above) */}
+            <div className="flex-1 text-right pr-4 space-y-0.5 leading-snug">
+              <div className="font-bold text-[#1e293b] uppercase text-[11.5px] mb-0.5">{settings.business_name}</div>
+              <div className="whitespace-pre-line">{cleanAddress}</div>
+              {cleanExtraInfo && (
+                <div className="font-semibold">{cleanExtraInfo}</div>
+              )}
+              <div className="text-[#94a3b8] font-semibold uppercase mt-0.5">SUBJECT TO AHMEDABAD JURISDICATION</div>
+            </div>
+
+            {/* Right block: Authorised Signatory (same row as ZERO DESIGNS PVT. LTD.) + logo below */}
+            <div className="flex flex-col items-end flex-shrink-0" style={{ width: '140px' }}>
+              <div className="text-[13.33px] text-[#777777] font-medium text-right whitespace-nowrap mb-2">
+                Authorised Signatory
               </div>
               <img src="/zero-logo.svg" alt="Zero Designs" className="h-10 w-auto" />
             </div>
+
           </footer>
         )}
       </div>
+    </div>
     </>
   );
 }
+
