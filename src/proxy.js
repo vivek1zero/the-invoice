@@ -5,7 +5,7 @@ const JWT_SECRET = new TextEncoder().encode(
   process.env.JWT_SECRET || 'zerodesignsinvoicingsecretkey'
 );
 
-export async function middleware(request) {
+export async function proxy(request) {
   const { pathname } = request.nextUrl;
 
   // Public paths to bypass
@@ -13,6 +13,7 @@ export async function middleware(request) {
     pathname.startsWith('/login') ||
     pathname.startsWith('/api/auth/login') ||
     pathname.startsWith('/invoice/') ||
+    pathname.startsWith('/api/pdf/') ||
     pathname.startsWith('/_next') ||
     pathname.includes('.')
   ) {
@@ -34,7 +35,7 @@ export async function middleware(request) {
     await jwtVerify(session, JWT_SECRET);
     return NextResponse.next();
   } catch (error) {
-    console.error('Middleware session validation error:', error);
+    console.error('Proxy session validation error:', error);
     if (pathname.startsWith('/api/')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

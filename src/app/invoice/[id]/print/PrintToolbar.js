@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 
 export default function PrintToolbar({ isStationery, pdfTitle }) {
   const [status, setStatus] = useState('Loading fonts...');
+  const [isGenerating, setIsGenerating] = useState(true);
   const hasTriggeredRef = useRef(false);
 
   useEffect(() => {
@@ -20,6 +21,7 @@ export default function PrintToolbar({ isStationery, pdfTitle }) {
       setStatus('Capturing layout...');
       const element = document.getElementById('invoice-pdf-container');
       if (!element) {
+        setIsGenerating(false);
         window.print();
         return;
       }
@@ -56,27 +58,39 @@ export default function PrintToolbar({ isStationery, pdfTitle }) {
         
         setStatus('Preparing native viewer...');
         const pdfBlob = pdf.output('blob');
-        
-        // Send to our Echo API to assign proper filename headers
-        const formData = new FormData();
-        formData.append('file', pdfBlob);
-        
-        const res = await fetch('/api/pdf/store', {
-          method: 'POST',
-          body: formData
-        });
-        
-        if (!res.ok) throw new Error('API failed');
-        
-        const data = await res.json();
-        
-        // Redirect completely to the native viewer endpoint
         const properFilename = `${pdfTitle || 'Invoice'}.pdf`;
-        window.location.replace(`/api/pdf/view?id=${data.id}&filename=${encodeURIComponent(properFilename)}`);
+
+        // Try storing to API endpoint for proper disposition filename
+        try {
+          const formData = new FormData();
+          formData.append('file', pdfBlob);
+          
+          const res = await fetch('/api/pdf/store', {
+            method: 'POST',
+            body: formData
+          });
+          
+          if (res.ok) {
+            const data = await res.json();
+            if (data.id) {
+              window.location.replace(`/api/pdf/view?id=${data.id}&filename=${encodeURIComponent(properFilename)}`);
+              return;
+            }
+          }
+        } catch (apiErr) {
+          console.warn('API store error, using blob URL fallback:', apiErr);
+        }
+
+        // Direct Blob URL fallback if API fails
+        const blobUrl = URL.createObjectURL(pdfBlob);
+        window.location.replace(blobUrl);
 
       } catch (err) {
-        console.error('PDF generation error, falling back to browser print:', err);
-        window.print();
+        console.warn('PDF generation error, falling back to browser print:', err);
+        setIsGenerating(false);
+        setTimeout(() => {
+          window.print();
+        }, 300);
       } finally {
         if (element) {
           element.style.transform = prevTransform;
@@ -84,12 +98,15 @@ export default function PrintToolbar({ isStationery, pdfTitle }) {
       }
     };
 
-    // Wait 800ms for custom fonts to paint before generating
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       generateAndServeNativePDF();
     }, 800);
 
+    return () => clearTimeout(timer);
+
   }, [pdfTitle]);
+
+  if (!isGenerating) return null;
 
   return (
     <div className="fixed inset-0 z-[99999] bg-zinc-900 flex flex-col items-center justify-center" style={{ fontFamily: "'Montserrat', sans-serif" }}>
@@ -99,3 +116,4 @@ export default function PrintToolbar({ isStationery, pdfTitle }) {
     </div>
   );
 }
+

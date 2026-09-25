@@ -22,10 +22,15 @@ export default function LoginPage() {
         body: JSON.stringify({ username, password })
       });
 
-      const data = await res.json();
+      let data;
+      try {
+        data = await res.json();
+      } catch {
+        data = null;
+      }
 
       if (!res.ok) {
-        throw new Error(data.error || 'Failed to login');
+        throw new Error(data?.error || `Login failed (${res.status})`);
       }
 
       // Login success, redirect to dashboard

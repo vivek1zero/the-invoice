@@ -20,14 +20,14 @@ function formatPdfTitle(invoice) {
   const century = String(date.getFullYear()).slice(0, 2);
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
-  
+
   const fiscalMonth = date.getMonth();
   const startYear = fiscalMonth >= 3 ? date.getFullYear() : date.getFullYear() - 1;
   const endYear = startYear + 1;
   const startYearShort = String(startYear).slice(-2);
   const endYearShort = String(endYear).slice(-2);
   const fy = `${startYearShort}${endYearShort}`;
-  
+
   let prefix = 'D';
   if (invoice?.status === 'PROFORMA') {
     prefix = invoice?.domesticExport === 'Export' ? 'PE' : 'PD';
@@ -192,7 +192,7 @@ export default async function PrintInvoicePage({ params, searchParams }) {
             min-height: 297mm !important;
             box-sizing: border-box !important;
             margin: 0 auto !important;
-            padding: 12mm 12mm 12mm 12mm !important;
+            padding: 12mm 12mm 12mm calc(12mm + 4px) !important;
             letter-spacing: normal !important;
             box-shadow: none !important;
             border: none !important;
@@ -225,49 +225,36 @@ export default async function PrintInvoicePage({ params, searchParams }) {
       {/* Screen-only spacer so the fixed toolbar doesn't overlap invoice – hidden when printing */}
       <div id="invoice-screen-spacer" style={{ height: '64px' }} />
 
-      <div 
+      <div
         id="invoice-pdf-container"
-        style={{ 
-          fontFamily: "'Averta', sans-serif", 
+        style={{
+          fontFamily: "'Averta', sans-serif",
           letterSpacing: 'normal',
           width: '794px',
           minHeight: '1123px',
-          padding: '0mm 8mm 10mm 14mm',
+          padding: '0mm 7mm 10mm calc(14mm + 4px)',
           boxSizing: 'border-box'
         }}
-        className="bg-[#ffffff] text-[#1e293b] mx-auto relative overflow-hidden flex flex-col justify-between"
+        className="bg-[#ffffff] text-[#1e293b] mx-auto relative overflow-hidden flex flex-col justify-start"
       >
         <TriggerPrint />
 
-        {/* Central Background Watermark (zero-symbol) - ONLY shown on Full Digital PDF */}
-        {!isStationery && (
-          <div 
-            className="absolute inset-0 pointer-events-none flex items-center justify-center z-0"
-            style={{ opacity: 0.06 }}
-          >
-            <svg 
-              viewBox="0 0 649.88 649.88" 
-              style={{ width: '460px', height: '460px' }}
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path fill="#2d424d" d="M636.11,1185.92a323.79,323.79,0,0,0-108.64,51.78,203.38,203.38,0,0,1,34-12.37c108.36-28.63,219.41,36,248,144.36s-36,219.41-144.35,248-219.41-36-248.05-144.35a202.28,202.28,0,0,1-4.75-80.5A323.31,323.31,0,0,0,405,1583c45.83,173.46,223.61,276.92,397.07,231.08S1079,1590.47,1033.18,1417,809.57,1140.08,636.11,1185.92Z" transform="translate(-394.17 -1175.06)"/>
-              <path fill="#2d424d" d="M561.17,1458.39a81.14,81.14,0,0,1,160.28-17.82,121.82,121.82,0,1,0-97.37,97A81.14,81.14,0,0,1,561.17,1458.39Z" transform="translate(-394.17 -1175.06)"/>
-            </svg>
-          </div>
-        )}
+
 
         {/* PDF Header -> top-right, badge flush to top edge */}
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px', position: 'relative', zIndex: 20 }}>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px', marginRight: '30px', position: 'relative', zIndex: 20, marginTop: '-2px' }}>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             {!isStationery ? (
               <div style={{
                 backgroundColor: '#E94444',
                 color: '#ffffff',
-                padding: '12px 28px',
-                fontSize: '18px',
-                fontWeight: 'bold',
+                padding: '9px 11px 16px 11px',
+                fontSize: '16px',
+                textAlign: 'center',
+                fontWeight: '600',
                 display: 'inline-block',
-                lineHeight: '1.2'
+                lineHeight: '1',
+                letterSpacing: '0px'
               }}>
                 www.zerodesigns.in
               </div>
@@ -275,12 +262,15 @@ export default async function PrintInvoicePage({ params, searchParams }) {
               <div style={{ height: '40px' }} />
             )}
             <div style={{
-              fontSize: '14px',
+              fontSize: '12.6666px',
               color: '#777777',
               textTransform: 'uppercase',
               textAlign: 'center',
-              marginTop: '8px',
-              letterSpacing: '0.5px'
+              marginTop: '7.8px',
+              fontWeight: 200,
+              fontFamily: 'Arial, Helvetica, sans-serif',
+              letterSpacing: '1.3',
+              width: '100%'
             }}>
               ORIGINAL FOR RECIPIENT
             </div>
@@ -288,233 +278,281 @@ export default async function PrintInvoicePage({ params, searchParams }) {
         </div>
 
         {/* Large gap between header and title — exactly as in reference */}
-        <div style={{ height: '48px' }} />
+        <div style={{ height: '0px' }} />
 
-        {/* Invoice Title */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px', position: 'relative', zIndex: 10 }}>
-          <div style={{ width: '50%' }}>
-            <h2 style={{ fontSize: '20px', fontWeight: 'bold', margin: 0, color: themeTextHex, letterSpacing: '-0.3px' }}>
-              {isProforma ? 'Proforma Invoice' : (isExport ? 'Export Invoice' : 'Tax Invoice')} | {invoice.orderNumber || invoice.invoiceNumber}
-            </h2>
+        {/* Title & INVOICE TO Section Container */}
+        <div style={{ marginTop: '32px', marginBottom: '0px', padding: '0px', position: 'relative', zIndex: 10 }}>
+          {/* Invoice Title */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '-8px' }}>
+            <div style={{ width: '50%' }}>
+              <h2 style={{ fontSize: '20px', fontWeight: 'bold', margin: 0, color: themeTextHex, letterSpacing: '0.2px', marginTop: '0px', marginBottom: '0px' }}>
+                {isProforma ? 'Proforma Invoice' : (isExport ? 'Export Invoice' : 'Tax Invoice')} | {invoice.orderNumber || invoice.invoiceNumber}
+              </h2>
+            </div>
+            <div style={{ width: '50%', textAlign: 'right', color: '#777777' }}>
+              {isExport && (
+                <>
+                  <div style={{ fontWeight: 'bold', fontSize: '12px', textTransform: 'uppercase', color: '#334155' }}>LUT ARN No.: {invoice.lutArn || settings.business_lut_arn}</div>
+                  <div style={{ fontSize: '11px', lineHeight: 1.4, marginTop: '2px' }}>
+                    Supply Meant for Export Under Bond of Letter of Understanding<br />
+                    without Payment of Integrated Tax (IGST)
+                  </div>
+                </>
+              )}
+            </div>
           </div>
-          <div style={{ width: '50%', textAlign: 'right', color: '#777777' }}>
-            {isExport && (
-              <>
-                <div style={{ fontWeight: 'bold', fontSize: '12px', textTransform: 'uppercase', color: '#334155' }}>LUT ARN No.: {invoice.lutArn || settings.business_lut_arn}</div>
-                <div style={{ fontSize: '11px', lineHeight: 1.4, marginTop: '2px' }}>
-                  Supply Meant for Export Under Bond of Letter of Understanding<br/>
-                  without Payment of Integrated Tax (IGST)
+
+          {/* INVOICE TO + Address — tight stacking, no extra gaps */}
+          <div style={{ marginBottom: '0px', marginTop: '15px', color: '#777777' }}>
+            <div style={{ fontWeight: 'bold', fontSize: '13px', textTransform: 'uppercase', marginBottom: '-2px', color: '#777777', letterSpacing: '0.2px' }}>INVOICE TO</div>
+            {(() => {
+              const first = client?.firstName ? client.firstName.trim() : '';
+              const last = client?.lastName ? client.lastName.trim() : '';
+              const fullName = [first, last].filter(Boolean).join(' ').trim();
+              const contactName = fullName || client?.contactPerson || '';
+
+              return (
+                <div style={{ fontWeight: '200', fontSize: '13px', lineHeight: '1.55', marginTop: '0px', letterSpacing: '0.2px' }}>
+                  {contactName && (
+                    <div style={{ color: '#777777', fontWeight: 'normal', letterSpacing: '0.2px' }}>{contactName}</div>
+                  )}
+                  <div style={{ fontWeight: 'bold', color: '#777777', textTransform: 'uppercase', letterSpacing: '0.3px' }}>{client?.name || 'Client Name'}</div>
+                  <div style={{ color: '#777777', fontWeight: 'normal', whiteSpace: 'pre-line', marginTop: '-2px', lineHeight: '20px', letterSpacing: '0.2px' }}>
+                    {client?.address || 'Address not specified'}
+                  </div>
+                  <div style={{ color: '#777777', fontWeight: 'normal', marginTop: '-2px', letterSpacing: '0.2px' }}>
+                    State Code: {client?.stateCode || '24'} | GSTIN: {client?.gstin || 'N/A'}
+                  </div>
                 </div>
-              </>
-            )}
+              );
+            })()}
           </div>
         </div>
 
-        {/* INVOICE TO + Address — tight stacking, no extra gaps */}
-        <div style={{ marginBottom: '20px', color: '#777777', position: 'relative', zIndex: 10 }}>
-          <div style={{ fontWeight: 'bold', fontSize: '13.33px', textTransform: 'uppercase', marginBottom: '2px', color: '#777777' }}>INVOICE TO</div>
-          {(() => {
-            const first = client?.firstName ? client.firstName.trim() : '';
-            const last = client?.lastName ? client.lastName.trim() : '';
-            const fullName = [first, last].filter(Boolean).join(' ').trim();
-            const contactName = fullName || client?.contactPerson || '';
-
-            return (
-              <div style={{ fontSize: '13.33px', lineHeight: '1.55' }}>
-                {contactName && (
-                  <div style={{ color: '#777777', fontWeight: 'normal' }}>{contactName}</div>
-                )}
-                <div style={{ fontWeight: 'bold', color: '#777777', textTransform: 'uppercase' }}>{client?.name || 'Client Name'}</div>
-                <div style={{ color: '#777777', fontWeight: 'normal', whiteSpace: 'pre-line' }}>
-                  {client?.address || 'Address not specified'}
-                </div>
-                <div style={{ color: '#777777', fontWeight: 'normal' }}>
-                  State Code: {client?.stateCode || '24'} | GSTIN: {client?.gstin || 'N/A'}
-                </div>
-              </div>
-            );
-          })()}
-                {/* SECTION 4: Place of Supply & 3-Block Payment Grid */}
-        <div className="flex justify-between items-start mb-0 relative z-10" style={{ marginTop: '20px' }}>
-          <div className="w-[41.66%]" style={{ color: '#777', fontSize: '13.3333px', paddingTop: '20px' }}>
-            <span className="font-bold uppercase block mb-0.5" style={{ fontSize: '11px', letterSpacing: '0.5px' }}>PLACE OF SUPPLY</span>
-            <span className="font-normal uppercase block" style={{ fontSize: '13.3333px' }}>{client.state || 'GUJARAT'}</span>
-          </div>
-          <div className="w-[58.33%] flex justify-end">
-            <table className="w-full border-collapse" style={{ tableLayout: 'fixed' }}>
-              <tbody>
-                <tr>
-                  <td className="align-middle" style={{ backgroundColor: '#2d424d', color: '#fff', height: '80px', padding: '10px 15px', width: '33.33%', textAlign: 'left', fontSize: '16px' }}>
-                    <div className="font-bold uppercase tracking-wide" style={{ fontSize: '11px', letterSpacing: '0.5px' }}>DATE</div>
-                    <div className="font-normal mt-1">{formatDate(invoice.createdAt)}</div>
-                  </td>
-                  <td className="align-middle" style={{ backgroundColor: themeBgHex, color: '#fff', height: '80px', padding: '10px 15px', width: '33.33%', textAlign: 'left', fontSize: '16px' }}>
-                    <div className="font-bold uppercase tracking-wide" style={{ fontSize: '11px', letterSpacing: '0.5px' }}>PLEASE PAY</div>
-                    <div className="font-bold mt-1">
-                      {currSym === '₹' ? 'INR' : currSym} {invoice.totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-                    </div>
-                  </td>
-                  <td className="align-middle" style={{ backgroundColor: '#2d424d', color: '#fff', height: '80px', padding: '10px 15px', width: '33.33%', textAlign: 'left', fontSize: '16px' }}>
-                    <div className="font-bold uppercase tracking-wide" style={{ fontSize: '11px', letterSpacing: '0.5px' }}>DUE DATE</div>
-                    <div className="font-normal mt-1">{formatDate(invoice.dueDate || invoice.createdAt)}</div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* SECTION 5: Line Items Table */}
-        <div className="flex flex-col mb-3 relative z-10" style={{ height: '340px' }}>
-          <table className="w-full text-left border-collapse" style={{ tableLayout: 'fixed' }}>
-            <thead>
-              <tr style={{ color: '#666', borderTop: '1px solid #2F444E', borderBottom: '1px solid #2F444E', backgroundColor: '#fff' }}>
-                <th className="font-bold uppercase" style={{ width: '45px', fontSize: '10pt', padding: '8px 10px' }}>NO</th>
-                <th className="font-bold uppercase" style={{ width: '75px', fontSize: '10pt', padding: '8px 10px' }}>HSN/SAC</th>
-                <th className="font-bold uppercase" style={{ fontSize: '10pt', padding: '8px 10px' }}>DESCRIPTION</th>
-                <th className="font-bold uppercase text-center" style={{ width: '55px', fontSize: '10pt', padding: '8px 10px' }}>UNIT</th>
-                <th className="font-bold uppercase text-center" style={{ width: '75px', fontSize: '10pt', padding: '8px 10px' }}>HRS/QTY</th>
-                <th className="font-bold uppercase text-right" style={{ width: '90px', fontSize: '10pt', padding: '8px 10px' }}>RATE</th>
-                <th className="font-bold uppercase text-center" style={{ width: '80px', fontSize: '10pt', padding: '8px 10px' }}>TAX</th>
-                <th className="font-bold uppercase text-right" style={{ width: '105px', fontSize: '10pt', padding: '8px 10px' }}>AMOUNT</th>
-              </tr>
-            </thead>
-            <tbody style={{ color: '#777', fontSize: '13.3333px' }}>
-              {lineItems.map((item, idx) => {
-                const taxLabel = invoice.igst > 0 
-                  ? '18% GST' 
-                  : ((invoice.cgst > 0 || invoice.sgst > 0) ? '18% GST' : 'NA');
-
-                return (
-                  <tr key={item.id} className="align-top border-b border-transparent">
-                    <td className="font-normal" style={{ padding: '12px 10px' }}>{idx + 1}</td>
-                    <td className="font-normal" style={{ padding: '12px 10px' }}>{item.hsnSac || '998314'}</td>
-                    <td style={{ padding: '12px 10px' }}>
-                      <div className="whitespace-pre-line leading-relaxed font-normal pr-4">{decodeHtmlEntities(item.description || item.title || 'Services')}</div>
+        {/* SECTION 4: Place of Supply & 3-Block Payment Grid */}
+        <div style={{ marginBottom: '5px', color: '#777777', position: 'relative', zIndex: 10, display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
+          <div className="flex justify-between items-start mb-0 relative z-10" style={{ marginTop: '52.5px', marginBottom: '-2px', justifyContent: "start" }}>
+            <div style={{ color: '#777', width: "41.7%", marginTop: '-6px' }}>
+              <span className="font-bold uppercase block" style={{ fontSize: '13px', letterSpacing: '0.4px', marginTop: '-6px' }}>PLACE OF SUPPLY</span>
+              <span className="font-normal uppercase block" style={{ fontSize: '13px', marginTop: '-3px', letterSpacing: '0.4px' }}>{client.state || 'GUJARAT'}</span>
+            </div>
+            <div style={{ display: "flex", justifyContent: "end", width: "58.3%", marginTop: '-6px' }}>
+              <table className="border-collapse" style={{ tableLayout: 'fixed' }}>
+                <tbody>
+                  <tr style={{ justifyContent: "center", alignItems: "center" }}>
+                    <td className="align-center" style={{ backgroundColor: '#2d424d', color: '#fff', height: '82px', padding: '0px', width: '140px', textAlign: 'center', fontSize: '17px' }}>
+                      <div className="uppercase tracking-wide" style={{ letterSpacing: '0px', fontSize: '16px', marginRight: '45px', fontWeight: '600', marginTop: '-12px', marginLeft: '6px', letterSpacing: '0.2px' }}>DATE</div>
+                      <div className="font-bold" style={{ marginTop: '-5px', paddingBottom: '6px', marginLeft: '9px', fontWeight: '600', letterSpacing: '0px', fontSize: '16px', marginRight: '5px' }}>{formatDate(invoice.createdAt)}</div>
                     </td>
-                    <td className="text-center font-normal" style={{ padding: '12px 10px' }}>{item.unit || ''}</td>
-                    <td className="text-center font-normal" style={{ padding: '12px 10px' }}>{item.quantity}</td>
-                    <td className="text-right font-normal" style={{ padding: '12px 10px' }}>
-                      {item.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                    <td className="align-center" style={{ backgroundColor: themeBgHex, color: '#fff', height: '82px', padding: '0px', width: '192px', textAlign: 'center', fontSize: '17px' }}>
+                      <div className="uppercase tracking-wide" style={{ letterSpacing: '0px', fontSize: '16px', fontWeight: '600', marginTop: '-12px', marginRight: '20px', letterSpacing: '0.2px' }}>PLEASE PAY</div>
+                      <div style={{ marginTop: '-6px', paddingBottom: '6px' }}>
+                        <span style={{ fontWeight: 600 }}>{currSym === '₹' ? 'INR' : currSym}</span>{' '}
+                        <span className='bold' style={{ fontWeight: 900 }}>
+                          {invoice.totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                        </span>
+                      </div>
                     </td>
-                    <td className="text-center whitespace-nowrap font-normal" style={{ padding: '12px 10px' }}>
-                      {taxLabel}
-                    </td>
-                    <td className="text-right font-normal" style={{ padding: '12px 10px' }}>
-                      {(item.quantity * item.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                    <td className="align-center" style={{ backgroundColor: '#2d424d', color: '#fff', height: '82px', padding: '0px', width: '140px', textAlign: 'center', fontSize: '17px' }}>
+                      <div className="uppercase tracking-wide" style={{ letterSpacing: '0px', fontSize: '16px', fontWeight: '600', marginTop: '-12px', marginRight: '12px', marginLeft: '10px', letterSpacing: '0.2px' }}>DUE DATE</div>
+                      <div className="font-bold" style={{ marginTop: '-5px', paddingBottom: '6px', marginLeft: '8px', fontWeight: '600', fontSize: '16px', marginRight: '5px' }}>{formatDate(invoice.dueDate || invoice.createdAt)}</div>
                     </td>
                   </tr>
-                );
-              })}
-            </tbody>
-          </table>
-          <div className="w-full mt-auto" style={{ borderBottom: '1px solid #2F444E', paddingTop: '20px' }} />
-        </div>
+                </tbody>
+              </table>
+            </div>
+          </div>
 
-        {/* Totals & Bank Details Grid */}
-        <div className="flex justify-between items-start pt-3 relative z-10" style={{ fontSize: '13.3333px', color: '#777' }}>
-          {/* Bank Details (Left) */}
-          <div className="w-[45%] pr-6">
-            <div className="mb-4">
-              <div className="font-bold mb-0.5" style={{ color: '#777', fontSize: '13.3333px' }}>Bank Details:</div>
-              <div className="whitespace-pre-line font-normal" style={{ fontSize: '13.3333px', lineHeight: '1.45' }}>
-                {cleanBankDetail}
+          {/* Middle & Bottom Section Container (Table + Totals/Bank Details) with continuous Watermark */}
+          <div className="relative">
+            {!isStationery && (
+              <div
+                className="absolute inset-0 pointer-events-none flex items-center justify-center -z-10"
+              >
+                <svg
+                  viewBox="153.68 225.73 156.99 156.99"
+                  xmlns="http://www.w3.org/2000/svg"
+                  style={{
+                    width: '460px',
+                    height: '460px',
+                    display: 'block'
+                  }}
+                >
+                  <path
+                    fill="#f5f5f5"
+                    d="M212.12,228.3358a78.2489,78.2489,0,0,0-26.2493,12.51,48.9709,48.9709,0,1,1-27.8046,37.4939A78.4956,78.4956,0,1,0,212.12,228.3358Z"
+                  />
+                  <path
+                    fill="#f5f5f5"
+                    d="M194.0127,294.1679a19.6062,19.6062,0,0,1,38.7271-4.3054,29.4363,29.4363,0,1,0-23.5269,23.44A19.6087,19.6087,0,0,1,194.0127,294.1679Z"
+                  />
+                </svg>
               </div>
+            )}
+
+            {/* SECTION 5: Line Items Table */}
+            <div className="flex flex-col mb-0 relative z-10" style={{ height: '340px', marginTop: '0px' }}>
+              <table className="w-full border-collapse" style={{ width: '100%', tableLayout: 'fixed' }}>
+                <thead>
+                  <tr style={{
+                    color: '#777777',
+                    borderTop: '1px solid #2F444E',
+                    borderBottom: '1px solid #2F444E',
+                    backgroundColor: '#fff',
+                    fontSize: '13px',
+                    fontWeight: '700',
+                    letterSpacing: '0.4px',
+                    height: '30px'
+                  }}>
+                    <th className="uppercase font-bold" style={{ width: '44px', textAlign: 'left', padding: '5px 0 8px 5px', verticalAlign: 'middle', paddingBottom: '18px' }}>NO</th>
+                    <th className="uppercase font-bold" style={{ width: '82px', textAlign: 'left', padding: '5px 0 8px 0px', verticalAlign: 'middle', paddingBottom: '18px' }}>HSN/SAC</th>
+                    <th className="uppercase font-bold" style={{ width: '170px', textAlign: 'left', padding: '5px 0 8px 0', verticalAlign: 'middle', paddingBottom: '18px' }}>DESCRIPTION</th>
+                    <th className="uppercase font-bold" style={{ width: '50px', textAlign: 'center', padding: '5px 0 8px 0', verticalAlign: 'middle', paddingBottom: '18px' }}>UNIT</th>
+                    <th className="uppercase font-bold" style={{ width: '72px', textAlign: 'center', padding: '5px 0 8px 8px', verticalAlign: 'middle', paddingBottom: '18px', }}>HRS/QTY</th>
+                    <th className="uppercase font-bold" style={{ width: '96px', textAlign: 'left', padding: '5px 0 8px 0', verticalAlign: 'middle', paddingBottom: '18px', paddingLeft: '34px' }}>RATE</th>
+                    <th className="uppercase font-bold" style={{ width: '82px', textAlign: 'left', padding: '5px 0 8px 14px', verticalAlign: 'middle', paddingBottom: '18px' }}>TAX</th>
+                    <th className="uppercase font-bold" style={{ width: '110px', textAlign: 'right', padding: '5px 30px 8px 0', verticalAlign: 'middle', paddingBottom: '18px' }}>AMOUNT</th>
+                  </tr>
+                </thead>
+                <tbody style={{ color: '#777777', fontSize: '13px' }}>
+                  {lineItems.map((item, idx) => {
+                    const taxLabel = invoice.igst > 0
+                      ? '18% GST'
+                      : ((invoice.cgst > 0 || invoice.sgst > 0) ? '18% GST' : 'NA');
+
+                    return (
+                      <tr key={item.id} className="border-b border-transparent" style={{ verticalAlign: 'top' }}>
+                        <td style={{ textAlign: 'left', padding: '6px 0 12px 10px' }}>{idx + 1}</td>
+                        <td style={{ textAlign: 'left', padding: '6px 0 12px 0' }}>{item.hsnSac || '998314'}</td>
+                        <td style={{ textAlign: 'left', padding: '6px 0px 12px 0', width: '170px' }}>
+                          <div className="whitespace-pre-line font-normal" style={{ lineHeight: '18px', maxWidth: '170px' }}>
+                            {decodeHtmlEntities(item.description || item.title || 'Services')}
+                          </div>
+                        </td>
+                        <td style={{ textAlign: 'center', padding: '6px 0 12px 0' }}>{item.unit || ''}</td>
+                        <td style={{ textAlign: 'center', padding: '6px 0 12px 0' }}>{item.quantity}</td>
+                        <td className="whitespace-nowrap" style={{ textAlign: 'right', padding: '6px 0 12px 0' }}>
+                          {item.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                        </td>
+                        <td className="whitespace-nowrap" style={{ textAlign: 'left', padding: '6px 0 12px 14px' }}>
+                          {taxLabel}
+                        </td>
+                        <td className="whitespace-nowrap" style={{ textAlign: 'right', padding: '6px 30px 12px 0' }}>
+                          {(item.quantity * item.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+              <div className="w-full mt-auto" style={{ borderBottom: '1px solid #2F444E', paddingTop: '20px' }} />
             </div>
 
-            <div>
-              <div className="font-bold mb-0.5" style={{ color: '#777', fontSize: '13.3333px' }}>For, US Dollar Remittances - USD</div>
-              <div className="whitespace-pre-line font-normal" style={{ fontSize: '13.3333px', lineHeight: '1.45' }}>
-                Correspondent Bank Details<br />
-                J P MORGAN CHASE BANK,NEW YORK.<br />
-                US SWIFT Code: CHASUS33XXX
+            {/* Totals & Bank Details Grid */}
+            <div className="flex justify-between items-start relative z-10" style={{ fontSize: '13.3333px', color: '#777' }}>
+              {/* Bank Details (Left) */}
+              <div className="w-[45%]">
+                <div style={{ marginTop: '12px', marginBottom: '8px' }}>
+                  <div className="font-bold" style={{ color: '#777', fontSize: '13.3333px', marginBottom: '0px' }}>Bank Details:</div>
+                  <div className="whitespace-pre-line font-normal" style={{ fontSize: '13.3333px', lineHeight: '1.45' }}>
+                    {cleanBankDetail}
+                  </div>
+                </div>
+
+                <div>
+                  <div className="font-bold" style={{ color: '#777', fontSize: '13.3333px', marginBottom: '0px', marginTop: '18px' }}>For, US Dollar Remittances - USD</div>
+                  <div className="whitespace-pre-line font-normal" style={{ fontSize: '13.3333px', lineHeight: '1.45' }}>
+                    Correspondent Bank Details<br />
+                    J P MORGAN CHASE BANK,NEW YORK.<br />
+                    US SWIFT Code: CHASUS33XXX
+                  </div>
+                </div>
+              </div>
+
+              {/* Totals & Signature (Right) */}
+              <div className="w-[55%] flex flex-col items-end text-right" style={{ justifyContent: 'space-between' }}>
+                <div className="w-full max-w-[355px] mb-4" style={{ justifyContent: 'start', marginTop: '12px' }}>
+                  <div style={{ marginBottom: '25px', marginLeft: '9px', marginRight: '8px' }}>
+                    <div className="flex justify-between py-[2px]">
+                      <span className="font-bold" style={{ fontSize: '12px', lineHeight: '1.25', marginBottom: '3px', letterSpacing: '0.6px', color: '#767676' }}>SUB TOTAL</span>
+                      <span className="font-normal" style={{ fontSize: '12px', lineHeight: '1.25' }}>{invoice.subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                    </div>
+                    {invoice.cgst > 0 && (
+                      <div className="flex justify-between py-[2px]">
+                        <span className="font-bold" style={{ fontSize: '12px', lineHeight: '1.25', marginBottom: '3px', letterSpacing: '0.6px', color: '#767676' }}>CGST @ 9% on {invoice.subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                        <span className="font-normal" style={{ fontSize: '12px', lineHeight: '1.25' }}>{invoice.cgst.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                      </div>
+                    )}
+                    {invoice.sgst > 0 && (
+                      <div className="flex justify-between py-[2px]">
+                        <span className="font-bold" style={{ fontSize: '12px', lineHeight: '1.25', marginBottom: '3px', letterSpacing: '0.6px', color: '#767676' }}>SGST @ 9% on {invoice.subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                        <span className="font-normal" style={{ fontSize: '12px', lineHeight: '1.25' }}>{invoice.sgst.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                      </div>
+                    )}
+                    {invoice.igst > 0 && (
+                      <div className="flex justify-between py-[2px]">
+                        <span className="font-bold" style={{ fontSize: '12px', lineHeight: '1.25', marginBottom: '3px', letterSpacing: '0.6px', color: '#767676' }}>IGST @ 18% on {invoice.subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                        <span className="font-normal" style={{ fontSize: '12px', lineHeight: '1.25' }}>{invoice.igst.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                      </div>
+                    )}
+                    {invoice.discount > 0 && (
+                      <div className="flex justify-between py-[2px]">
+                        <span className="font-bold" style={{ fontSize: '12px', lineHeight: '1.25', marginBottom: '3px', letterSpacing: '0.6px', color: '#767676' }}>Discount</span>
+                        <span className="text-[#dc2626] font-normal" style={{ fontSize: '12px', lineHeight: '1.25' }}>- {invoice.discount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="total-due-bar flex justify-between items-center" style={{ backgroundColor: '#2e4151', color: '#ffffff', marginBottom: "-5px", padding: '0px 10px 10px 10px', textAlign: "center" }}>
+                    <span style={{ fontSize: '18px', display: 'flex', alignItems: 'center', marginTop: '-8px', justifyContent: 'center' }}>Total Due</span>
+                    <span style={{ fontSize: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '-4px', fontWeight: 800 }}>
+                      {currSym === '₹' ? 'INR' : currSym} {invoice.totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                    </span>
+                  </div>
+                </div>
+
+                {/* THANKYOU + For Zero Designs + Signature */}
+                <div className="text-right text-[13.3333px] text-[#777] font-medium w-full max-w-[340px]" style={{ lineHeight: '1.6' }}>
+                  THANKYOU.<br />
+                  For Zero Designs Private Limited
+
+                  {/* Signature — sits between "For Zero Designs" and "Authorised Signatory" */}
+                  {!isStationery && (
+                    <div style={{ width: '100%', height: '90px', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', margin: '2px 0px 10px 20px' }}>
+                      <SignatureSvg style={{ width: '145px', height: '80px', display: 'block' }} />
+                    </div>
+                  )}
+                  {isStationery && <div style={{ height: '80px' }} />}
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Totals & Signature (Right) */}
-          <div className="w-[55%] flex flex-col items-end text-right">
-            <div className="w-full max-w-[340px] mb-4">
-              <div className="flex justify-between py-1" style={{ paddingTop: '15px' }}>
-                <span className="font-bold" style={{ fontSize: '13.3333px' }}>SUB TOTAL</span>
-                <span className="font-normal" style={{ fontSize: '13.3333px' }}>{invoice.subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
-              </div>
-              {invoice.cgst > 0 && (
-                <div className="flex justify-between py-1">
-                  <span className="font-bold" style={{ fontSize: '13.3333px' }}>CGST @ 9% on {invoice.subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
-                  <span className="font-normal" style={{ fontSize: '13.3333px' }}>{invoice.cgst.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
-                </div>
-              )}
-              {invoice.sgst > 0 && (
-                <div className="flex justify-between py-1">
-                  <span className="font-bold" style={{ fontSize: '13.3333px' }}>SGST @ 9% on {invoice.subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
-                  <span className="font-normal" style={{ fontSize: '13.3333px' }}>{invoice.sgst.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
-                </div>
-              )}
-              {invoice.igst > 0 && (
-                <div className="flex justify-between py-1">
-                  <span className="font-bold" style={{ fontSize: '13.3333px' }}>IGST @ 18% on {invoice.subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
-                  <span className="font-normal" style={{ fontSize: '13.3333px' }}>{invoice.igst.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
-                </div>
-              )}
-              {invoice.discount > 0 && (
-                <div className="flex justify-between py-1">
-                  <span className="font-bold" style={{ fontSize: '13.3333px' }}>Discount</span>
-                  <span className="text-[#dc2626] font-normal" style={{ fontSize: '13.3333px' }}>- {invoice.discount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
-                </div>
-              )}
-              
-              <div className="total-due-bar mt-2 flex justify-between items-center font-bold" style={{ backgroundColor: '#2e4151', color: '#ffffff', padding: '10px 10px', minHeight: '46px' }}>
-                <span style={{ fontSize: '10pt', display: 'flex', alignItems: 'center', textTransform: 'uppercase' }}>Total Due</span>
-                <span style={{ fontSize: '20px', display: 'flex', alignItems: 'center' }}>
-                  {currSym === '₹' ? 'INR' : currSym} {invoice.totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-                </span>
-              </div>
-            </div>
+          {/* Footer: matches reference — ZERO DESIGNS PVT. LTD. aligned with Authorised Signatory */}
+          {!isStationery && (
+            <footer className="flex items-start text-[10px] text-[#777777] relative z-10" style={{ marginTop: '-23px' }}>
 
-            {/* THANKYOU + For Zero Designs + Signature */}
-            <div className="text-right text-[13.3333px] text-[#777] font-medium w-full max-w-[340px]" style={{ lineHeight: '1.6' }}>
-              THANKYOU.<br />
-              For Zero Designs Private Limited
+              {/* Left/center block: business name + address (text-right to align with totals above) */}
+              <div className="flex-1 text-right pr-4 leading-tight">
+                <div className="font-bold text-[#777777] uppercase text-[14px]">{settings.business_name}</div>
+                <div className="whitespace-pre-line leading-tight" style={{ marginBottom: '0px', fontSize: '9px', letterSpacing: '0.2px' }}>{cleanAddress}</div>
+                {cleanExtraInfo && (
+                  <div className="font-normal leading-tight" style={{ marginTop: '0px', marginBottom: '0px', fontSize: '11px' }}>{cleanExtraInfo}</div>
+                )}
+                <div className="text-[#777777] font-normal uppercase" style={{ marginTop: '8px', fontSize: '11px', letterSpacing: `0.2px` }}>SUBJECT TO AHMEDABAD JURISDICATION</div>
+              </div>
 
-              {/* Signature — sits between "For Zero Designs" and "Authorised Signatory" */}
-              {!isStationery && (
-                <div style={{ height: '90px', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', margin: '4px 0' }}>
-                  <SignatureSvg style={{ width: '160px', height: '90px', display: 'block' }} />
+              {/* Right block: Authorised Signatory (same row as ZERO DESIGNS PVT. LTD.) + logo below */}
+              <div className="flex flex-col items-end flex-shrink-0" style={{ width: '145px' }}>
+                <div style={{ fontFamily: "'Averta', sans-serif", fontSize: '13.33px', color: '#777777', fontWeight: 400, textAlign: 'right', whiteSpace: 'nowrap', marginBottom: '8px' }}>
+                  Authorised Signatory
                 </div>
-              )}
-              {isStationery && <div style={{ height: '90px' }} />}
-            </div>
-          </div>
+                <img src="/zero-logo.svg" alt="Zero Designs" style={{ width: '142px', height: 'auto', display: 'block' }} />
+              </div>
+            </footer>
+          )}
         </div>
-
-        {/* Footer: matches reference — ZERO DESIGNS PVT. LTD. aligned with Authorised Signatory */}
-        {!isStationery && (
-          <footer className="mt-4 flex items-start text-[10.5px] text-[#777777] relative z-10">
-
-            {/* Left/center block: business name + address (text-right to align with totals above) */}
-            <div className="flex-1 text-right pr-4 space-y-0.5 leading-snug">
-              <div className="font-bold text-[#1e293b] uppercase text-[11.5px] mb-0.5">{settings.business_name}</div>
-              <div className="whitespace-pre-line">{cleanAddress}</div>
-              {cleanExtraInfo && (
-                <div className="font-semibold">{cleanExtraInfo}</div>
-              )}
-              <div className="text-[#94a3b8] font-semibold uppercase mt-0.5">SUBJECT TO AHMEDABAD JURISDICATION</div>
-            </div>
-
-            {/* Right block: Authorised Signatory (same row as ZERO DESIGNS PVT. LTD.) + logo below */}
-            <div className="flex flex-col items-end flex-shrink-0" style={{ width: '140px' }}>
-              <div className="text-[13.33px] text-[#777777] font-medium text-right whitespace-nowrap mb-2">
-                Authorised Signatory
-              </div>
-              <img src="/zero-logo.svg" alt="Zero Designs" className="h-10 w-auto" />
-            </div>
-
-          </footer>
-        )}
-      </div>
-    </div>
+      </div >
     </>
   );
 }
-
